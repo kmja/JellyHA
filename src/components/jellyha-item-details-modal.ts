@@ -27,6 +27,8 @@ export class JellyHAItemDetailsModal extends LitElement {
     // View States
     @state() private _viewMode: 'default' | 'episodes' = 'default';
     @state() private _episodes: MediaItem[] = [];
+    @state() private _episodesLoading = false;
+    @state() private _episodesError = '';
     @state() private _selectedSeason: number | 'all' = 'all';
 
     // Swipe to close state
@@ -96,11 +98,14 @@ export class JellyHAItemDetailsModal extends LitElement {
         this._nextUpItem = undefined; // Reset
         this._viewMode = 'default';
         this._episodes = [];
+        this._episodesLoading = false;
+        this._episodesError = '';
         this._selectedSeason = 'all';
         document.body.style.overflow = 'hidden';
 
         if (this._item.type === 'Series') {
             this._fetchNextUp(this._item);
+            this._fetchEpisodes();
         }
 
         // Fetch full details (MediaStreams, Backdrops) on demand
@@ -188,10 +193,11 @@ export class JellyHAItemDetailsModal extends LitElement {
         );
         const entityId = this._serverEntityId || (entities.length > 0 ? entities[0] : 'sensor.jellyha_library');
 
-        try {
-            this._viewMode = 'episodes'; // Switch view immediately for better UX responsiveness
-            this.requestUpdate();
+        this._episodesLoading = true;
+        this._episodesError = '';
+        this.requestUpdate();
 
+        try {
             let result: { items: MediaItem[] } | null = null;
             try {
                 // Try fetching without season to get all episodes across all seasons
@@ -215,15 +221,13 @@ export class JellyHAItemDetailsModal extends LitElement {
                 });
             }
 
-            if (result && result.items) {
-                this._episodes = result.items;
-            } else {
-                this._episodes = [];
-            }
-            this.requestUpdate();
+            this._episodes = result?.items || [];
         } catch (err) {
             console.warn('Failed to fetch episodes:', err);
             this._episodes = [];
+            this._episodesError = 'Could not load episodes.';
+        } finally {
+            this._episodesLoading = false;
             this.requestUpdate();
         }
     }
@@ -234,11 +238,16 @@ export class JellyHAItemDetailsModal extends LitElement {
             e.preventDefault();
         }
         if (this._viewMode === 'default') {
-            this._fetchEpisodes();
+            this._viewMode = 'episodes';
+            if (this._episodes.length === 0 && !this._episodesLoading) {
+                this._fetchEpisodes();
+            }
+            this.requestUpdate();
         } else {
             this._viewMode = 'default';
+            this.requestUpdate();
         }
-    }
+    };
 
 
     protected updated(): void {
@@ -683,6 +692,102 @@ export class JellyHAItemDetailsModal extends LitElement {
                 font-size: 0.8rem;
                 font-weight: 500;
                 border: 1px solid rgba(3, 169, 244, 0.3);
+            }
+
+            /* Inline seasons / episodes (default details view) */
+            .series-episodes-section {
+                display: flex;
+                flex-direction: column;
+                gap: 14px;
+                padding-top: 18px;
+                margin-top: 4px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
+            }
+            .series-episodes-heading {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 12px;
+            }
+            .series-episodes-heading h2 {
+                margin: 0;
+                font-size: 1.15rem;
+                font-weight: 700;
+                color: #ffffff;
+            }
+            .series-episodes-count {
+                font-size: 0.8rem;
+                color: #9ea4b5;
+            }
+            .episodes-placeholder {
+                font-size: 0.85rem;
+                color: #9ea4b5;
+                padding: 6px 2px;
+            }
+            .season-group {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+            }
+            .season-group-header {
+                display: flex;
+                align-items: baseline;
+                justify-content: space-between;
+                gap: 10px;
+                padding: 4px 2px 6px;
+                border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            }
+            .season-group-header h3 {
+                margin: 0;
+                font-size: 0.95rem;
+                font-weight: 700;
+                color: #c4c8d4;
+            }
+            .season-group-header span {
+                font-size: 0.75rem;
+                color: #9ea4b5;
+            }
+            .season-group-list {
+                display: flex;
+                flex-direction: column;
+                gap: 6px;
+            }
+            .season-group-list .episode-row {
+                gap: 12px;
+                padding: 8px 10px;
+                border-radius: 11px;
+            }
+            .season-group-list .episode-thumb-wrap {
+                width: 96px;
+                border-radius: 7px;
+            }
+            .season-group-list .episode-title {
+                font-size: 0.92rem;
+            }
+            .season-group-list .episode-number {
+                font-size: 0.72rem;
+            }
+            .season-group-list .episode-meta {
+                font-size: 0.76rem;
+            }
+            .season-group-list .play-episode-btn {
+                width: 30px;
+                height: 30px;
+            }
+            .season-group-list .play-episode-btn ha-icon {
+                --mdc-icon-size: 16px;
+            }
+            @media (max-width: 600px) {
+                .season-group-list .episode-thumb-wrap {
+                    width: 82px;
+                }
+                .season-group-list .episode-row {
+                    gap: 10px;
+                    padding: 7px 8px;
+                }
+                .season-group-list .episode-actions {
+                    gap: 5px;
+                }
             }
 
             .divider {
@@ -1549,8 +1654,133 @@ export class JellyHAItemDetailsModal extends LitElement {
                 ` : nothing}
 
                 ${this._renderMediaDetails(isSeries && this._nextUpItem ? this._nextUpItem : item)}
+
+                ${this._renderSeriesEpisodesSection()}
             </div>
         </div>
+        `;
+    }
+
+    private _getGroupedSeasons(): Array<{ season: number; episodes: MediaItem[] }> {
+        const grouped = new Map<number, MediaItem[]>();
+        for (const episode of this._episodes) {
+            const season = typeof episode.season === 'number' && !isNaN(episode.season)
+                ? episode.season
+                : 0;
+            const list = grouped.get(season) || [];
+            list.push(episode);
+            grouped.set(season, list);
+        }
+        return Array.from(grouped.entries())
+            .sort(([a], [b]) => a - b)
+            .map(([season, episodes]) => ({
+                season,
+                episodes: episodes.sort((a, b) => {
+                    const aNumber = a.episode ?? a.index_number ?? 0;
+                    const bNumber = b.episode ?? b.index_number ?? 0;
+                    return aNumber - bNumber;
+                }),
+            }));
+    }
+
+    private _renderSeriesEpisodesSection(): TemplateResult | typeof nothing {
+        if (!this._item || this._item.type !== 'Series') return nothing;
+
+        const seasons = this._getGroupedSeasons();
+        const total = this._episodes.length;
+
+        return html`
+            <div class="series-episodes-section">
+                <div class="series-episodes-heading">
+                    <h2>Episodes</h2>
+                    ${total > 0 ? html`
+                        <span class="series-episodes-count">${total} episode${total === 1 ? '' : 's'}</span>
+                    ` : nothing}
+                </div>
+                ${this._episodesLoading ? html`
+                    <div class="episodes-placeholder">Loading episodes…</div>
+                ` : this._episodesError ? html`
+                    <div class="episodes-placeholder">${this._episodesError}</div>
+                ` : seasons.length === 0 ? html`
+                    <div class="episodes-placeholder">No episodes found.</div>
+                ` : seasons.map(({ season, episodes }) => html`
+                    <section class="season-group">
+                        <div class="season-group-header">
+                            <h3>${season === 0 ? 'Specials' : `Season ${season}`}</h3>
+                            <span>${episodes.length} episode${episodes.length === 1 ? '' : 's'}</span>
+                        </div>
+                        <div class="season-group-list">
+                            ${episodes.map(ep => this._renderInlineEpisodeRow(ep))}
+                        </div>
+                    </section>
+                `)}
+            </div>
+        `;
+    }
+
+    private _renderInlineEpisodeRow(ep: MediaItem): TemplateResult {
+        const isNextUp = !!(this._nextUpItem && ep.id === this._nextUpItem.id);
+        const epNumber = ep.season != null
+            ? `S${ep.season}:E${ep.episode ?? ep.index_number ?? ''}`
+            : (ep.episode ?? ep.index_number ? `E${ep.episode ?? ep.index_number}` : '');
+        const runtime = this._formatRuntime(ep.runtime_minutes);
+
+        return html`
+            <div class="episode-row ${isNextUp ? 'next-up-highlight' : ''}"
+                @click=${(e: Event) => {
+                    e.stopPropagation();
+                    if (this._playTargets.length > 0) {
+                        this._handlePlayEpisode(ep);
+                    }
+                }}
+                style="${this._playTargets.length === 0 ? 'cursor: default;' : ''}">
+
+                <div class="episode-thumb-wrap">
+                    <img class="episode-thumb" src="${ep.poster_url || ep.backdrop_url || this._item!.poster_url}" alt="${ep.name || ''}" />
+                    ${this._playTargets.length > 0 ? html`
+                        <div class="episode-play-overlay">
+                            <ha-icon icon="mdi:play"></ha-icon>
+                        </div>
+                    ` : nothing}
+                </div>
+
+                <div class="episode-content">
+                    ${(epNumber || isNextUp) ? html`
+                        <div class="episode-header-line">
+                            ${epNumber ? html`<span class="episode-number">${epNumber}</span>` : nothing}
+                            ${isNextUp ? html`<span class="next-up-badge">NEXT UP</span>` : nothing}
+                        </div>
+                    ` : nothing}
+
+                    <h4 class="episode-title" title="${ep.name || 'Episode'}">${ep.name || 'Episode'}</h4>
+
+                    ${(runtime || ep.rating) ? html`
+                        <div class="episode-meta">
+                            ${runtime ? html`<span>${runtime}</span>` : nothing}
+                            ${runtime && ep.rating ? html`<span class="meta-dot">•</span>` : nothing}
+                            ${ep.rating ? html`<span class="episode-rating"><ha-icon icon="mdi:star"></ha-icon>${ep.rating.toFixed(1)}</span>` : nothing}
+                        </div>
+                    ` : nothing}
+                </div>
+
+                <div class="episode-actions">
+                    <button class="play-episode-btn watched-btn ${ep.is_played ? 'active' : ''}"
+                        @click=${(e: Event) => { e.stopPropagation(); this._handleMarkEpisodeWatched(ep); }}
+                        type="button"
+                        title="${ep.is_played ? 'Mark Unwatched' : 'Mark Watched'}">
+                        <ha-icon icon="mdi:check"></ha-icon>
+                    </button>
+
+                    ${this._playTargets.length > 0 ? html`
+                        <button class="play-episode-btn"
+                            @click=${(e: Event) => { e.stopPropagation(); this._handlePlayEpisode(ep); }}
+                            type="button"
+                            title="${this._getEpisodePlayTitle()}">
+                            <ha-icon icon="${this._getEpisodePlayIcon()}"></ha-icon>
+                        </button>
+                    ` : nothing}
+                </div>
+            </div>
         `;
     }
 
@@ -1593,7 +1823,15 @@ export class JellyHAItemDetailsModal extends LitElement {
                 ` : nothing}
                 
                 <div class="episodes-list">
-                    ${displayedEpisodes.length === 0 ? html`
+                    ${this._episodesLoading ? html`
+                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">
+                            Loading episodes…
+                        </div>
+                    ` : this._episodesError ? html`
+                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">
+                            ${this._episodesError}
+                        </div>
+                    ` : displayedEpisodes.length === 0 ? html`
                         <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">
                             No episodes found.
                         </div>

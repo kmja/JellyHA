@@ -546,6 +546,67 @@ class JellyfinApiClient:
         result = await self._request("GET", "/Shows/NextUp", params=params)
         return result.get("Items", [])
 
+    async def get_series_last_played_dates(
+        self, user_id: str, series_ids: list[str] | None = None
+    ) -> dict[str, str]:
+        """Return the most recent episode play date for each series.
+
+        Jellyfin does not populate UserData.LastPlayedDate on Series items when
+        individual episodes are watched. Derive it from the newest played
+        episode so library sorting by "Last watched" reflects real activity.
+        """
+        if series_ids is not None and not series_ids:
+            return {}
+        wanted = set(series_ids) if series_ids is not None else None
+
+        dates: dict[str, str] = {}
+        page_size = 500
+        start_index = 0
+
+        # Episodes are sorted by their last played date, with never-played
+        # episodes at the end. Page until a page contains no play dates so
+        # recently watched series are found even when they have no completed
+        # episodes (e.g. a partially watched special).
+        for _ in range(8):
+            params = {
+                "UserId": user_id,
+                "Recursive": "true",
+                "IncludeItemTypes": "Episode",
+                "Fields": "UserData,SeriesId",
+                "SortBy": "DatePlayed",
+                "SortOrder": "Descending",
+                "EnableImages": "false",
+                "Limit": page_size,
+                "StartIndex": start_index,
+            }
+            try:
+                result = await self._request("GET", "/Items", params=params)
+            except JellyfinApiError as err:
+                _LOGGER.debug("Failed to fetch recent played episodes: %s", err)
+                break
+
+            items = result.get("Items", [])
+            if not items:
+                break
+
+            played_on_page = 0
+            for episode in items:
+                series_id = episode.get("SeriesId")
+                last_played = (episode.get("UserData") or {}).get("LastPlayedDate")
+                if not series_id or not last_played:
+                    continue
+                played_on_page += 1
+                if wanted is not None and series_id not in wanted:
+                    continue
+                if last_played > dates.get(series_id, ""):
+                    dates[series_id] = last_played
+
+            if played_on_page == 0 or len(items) < page_size:
+                break
+            start_index += len(items)
+
+        return dates
+
     async def get_episodes_by_season(
         self, user_id: str, series_id: str, season: int | None = None
     ) -> list[dict[str, Any]]:

@@ -31,6 +31,10 @@ from .hls_manager import HlsSessionManager
 
 _LOGGER = logging.getLogger(__name__)
 
+# Local card build version. Bump whenever the bundled jellyha-cards.js is
+# rebuilt so browsers fetch the new module instead of a cached copy.
+CARD_BUILD_VERSION = "1.7.5.1"
+
 from dataclasses import dataclass
 
 @dataclass
@@ -120,10 +124,10 @@ async def async_setup_entry(hass: HomeAssistant, entry: JellyHAConfigEntry) -> b
         hass.http.register_view(JellyHAHlsView(hass))
         
         # Register frontend cards and seek polyfill globally across all panels (e.g. Media Browser)
-        add_extra_js_url(hass, f"/jellyha/jellyha-cards.js?v={integration.version}")
+        add_extra_js_url(hass, f"/jellyha/jellyha-cards.js?v={CARD_BUILD_VERSION}")
         
         # Register or update Lovelace dashboard resource with cache-busting version query
-        await _async_register_lovelace_resource(hass, str(integration.version))
+        await _async_register_lovelace_resource(hass, CARD_BUILD_VERSION)
 
         hass.data[f"{DOMAIN}_views_registered"] = True
     

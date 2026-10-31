@@ -186,11 +186,37 @@ class JellyHALibraryCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                 except Exception as err:
                     _LOGGER.debug("Could not fetch favorite series IDs: %s", err)
 
-            items = await asyncio.gather(*(self._async_transform_item(item) for item in raw_items))
-
-            # Fetch Next Up items (limit 20)
+            # Fetch Next Up items (limit 20) early so in-progress series can
+            # contribute their last-played date to library sorting.
             next_up_limit = 20
             raw_next_up = await self._api.get_next_up_items(user_id=user_id, limit=next_up_limit)
+
+            # Jellyfin leaves Series.UserData.LastPlayedDate empty when only
+            # episodes are watched. Derive the series date from its newest
+            # played episode so "Last watched" sorts by actual viewing.
+            try:
+                series_last_played = await self._api.get_series_last_played_dates(user_id)
+            except Exception as err:
+                _LOGGER.debug("Could not derive series last played dates: %s", err)
+                series_last_played = {}
+            # Next Up already carries the play date of the episode that made
+            # the series resumable, so use it as a fallback.
+            for raw in raw_next_up:
+                series_id = raw.get("SeriesId")
+                last_played = (raw.get("UserData") or {}).get("LastPlayedDate")
+                if series_id and last_played and last_played > series_last_played.get(series_id, ""):
+                    series_last_played[series_id] = last_played
+            if series_last_played:
+                for raw in raw_items:
+                    if raw.get("Type") != "Series":
+                        continue
+                    last_played = series_last_played.get(raw.get("Id"))
+                    if not last_played:
+                        continue
+                    raw.setdefault("UserData", {})["LastPlayedDate"] = last_played
+
+            items = await asyncio.gather(*(self._async_transform_item(item) for item in raw_items))
+
             next_up_items = []
             if raw_next_up:
                 next_up_items = await asyncio.gather(*(self._async_transform_item(item) for item in raw_next_up))

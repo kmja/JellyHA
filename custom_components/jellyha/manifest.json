@@ -12,12 +12,12 @@
     "media_source",
     "http"
   ],
-  "documentation": "https://github.com/zupancicmarko/jellyha",
+  "documentation": "https://github.com/kmja/JellyHA",
   "integration_type": "service",
   "iot_class": "local_push",
-  "issue_tracker": "https://github.com/zupancicmarko/jellyha/issues",
+  "issue_tracker": "https://github.com/kmja/JellyHA/issues",
   "requirements": [
     "pychromecast"
   ],
-  "version": "1.7.5"
+  "version": "1.7.5.1"
 }
