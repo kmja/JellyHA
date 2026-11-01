@@ -15,21 +15,21 @@ if (typeof window < "u") {
       return;
     a.__jellyha_wrapped = !0;
     const r = a.define.bind(a), n = a.get.bind(a);
-    a.define = function(c, p, u) {
-      if (!(typeof c == "string" && c.startsWith("jellyha-") && (t.set(c.toLowerCase(), { constructor: p, options: u }), n(c))))
-        return r(c, p, u);
+    a.define = function(c, p, h) {
+      if (!(typeof c == "string" && c.startsWith("jellyha-") && (t.set(c.toLowerCase(), { constructor: p, options: h }), n(c))))
+        return r(c, p, h);
     }, a.get = function(c) {
       const p = n(c);
       if (p)
         return p;
       if (typeof c == "string" && c.startsWith("jellyha-")) {
-        const u = t.get(c.toLowerCase());
-        if (u) {
+        const h = t.get(c.toLowerCase());
+        if (h) {
           try {
-            r(c, u.constructor, u.options);
+            r(c, h.constructor, h.options);
           } catch {
           }
-          return n(c) || u.constructor;
+          return n(c) || h.constructor;
         }
       }
     };
@@ -59,7 +59,7 @@ if (typeof window < "u") {
  * SPDX-License-Identifier: BSD-3-Clause
  */
 const at = globalThis, ft = at.ShadowRoot && (at.ShadyCSS === void 0 || at.ShadyCSS.nativeShadow) && "adoptedStyleSheets" in Document.prototype && "replace" in CSSStyleSheet.prototype, bt = Symbol(), Pt = /* @__PURE__ */ new WeakMap();
-let qt = class {
+let Ht = class {
   constructor(t, i, o) {
     if (this._$cssResult$ = !0, o !== bt) throw Error("CSSResult is not constructable. Use `unsafeCSS` or `css` instead.");
     this.cssText = t, this.t = i;
@@ -77,13 +77,13 @@ let qt = class {
     return this.cssText;
   }
 };
-const ei = (e) => new qt(typeof e == "string" ? e : e + "", void 0, bt), ze = (e, ...t) => {
+const ei = (e) => new Ht(typeof e == "string" ? e : e + "", void 0, bt), ze = (e, ...t) => {
   const i = e.length === 1 ? e[0] : t.reduce((o, s, a) => o + ((r) => {
     if (r._$cssResult$ === !0) return r.cssText;
     if (typeof r == "number") return r;
     throw Error("Value passed to 'css' function must be a 'css' function result: " + r + ". Use 'unsafeCSS' to pass non-literal values, but take care to ensure page security.");
   })(s) + e[a + 1], e[0]);
-  return new qt(i, e, bt);
+  return new Ht(i, e, bt);
 }, ti = (e, t) => {
   if (ft) e.adoptedStyleSheets = t.map((i) => i instanceof CSSStyleSheet ? i : i.styleSheet);
   else for (const i of t) {
@@ -100,7 +100,7 @@ const ei = (e) => new qt(typeof e == "string" ? e : e + "", void 0, bt), ze = (e
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const { is: ii, defineProperty: ai, getOwnPropertyDescriptor: oi, getOwnPropertyNames: si, getOwnPropertySymbols: ri, getPrototypeOf: ni } = Object, lt = globalThis, It = lt.trustedTypes, li = It ? It.emptyScript : "", di = lt.reactiveElementPolyfillSupport, qe = (e, t) => e, st = { toAttribute(e, t) {
+const { is: ii, defineProperty: ai, getOwnPropertyDescriptor: oi, getOwnPropertyNames: si, getOwnPropertySymbols: ri, getPrototypeOf: ni } = Object, lt = globalThis, It = lt.trustedTypes, li = It ? It.emptyScript : "", di = lt.reactiveElementPolyfillSupport, He = (e, t) => e, st = { toAttribute(e, t) {
   switch (t) {
     case Boolean:
       e = e ? li : null;
@@ -158,13 +158,13 @@ let je = class extends HTMLElement {
     return this.elementProperties.get(t) ?? Et;
   }
   static _$Ei() {
-    if (this.hasOwnProperty(qe("elementProperties"))) return;
+    if (this.hasOwnProperty(He("elementProperties"))) return;
     const t = ni(this);
     t.finalize(), t.l !== void 0 && (this.l = [...t.l]), this.elementProperties = new Map(t.elementProperties);
   }
   static finalize() {
-    if (this.hasOwnProperty(qe("finalized"))) return;
-    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(qe("properties"))) {
+    if (this.hasOwnProperty(He("finalized"))) return;
+    if (this.finalized = !0, this._$Ei(), this.hasOwnProperty(He("properties"))) {
       const i = this.properties, o = [...si(i), ...ri(i)];
       for (const s of o) this.createProperty(s, i[s]);
     }
@@ -311,28 +311,28 @@ let je = class extends HTMLElement {
   firstUpdated(t) {
   }
 };
-je.elementStyles = [], je.shadowRootOptions = { mode: "open" }, je[qe("elementProperties")] = /* @__PURE__ */ new Map(), je[qe("finalized")] = /* @__PURE__ */ new Map(), di?.({ ReactiveElement: je }), (lt.reactiveElementVersions ??= []).push("2.1.2");
+je.elementStyles = [], je.shadowRootOptions = { mode: "open" }, je[He("elementProperties")] = /* @__PURE__ */ new Map(), je[He("finalized")] = /* @__PURE__ */ new Map(), di?.({ ReactiveElement: je }), (lt.reactiveElementVersions ??= []).push("2.1.2");
 /**
  * @license
  * Copyright 2017 Google LLC
  * SPDX-License-Identifier: BSD-3-Clause
  */
-const vt = globalThis, Tt = (e) => e, rt = vt.trustedTypes, At = rt ? rt.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, Wt = "$lit$", ce = `lit$${Math.random().toFixed(9).slice(2)}$`, Vt = "?" + ce, ci = `<${Vt}>`, we = document, We = () => we.createComment(""), Ve = (e) => e === null || typeof e != "object" && typeof e != "function", wt = Array.isArray, pi = (e) => wt(e) || typeof e?.[Symbol.iterator] == "function", pt = `[ 	
-\f\r]`, Be = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, zt = /-->/g, Mt = />/g, be = RegExp(`>|${pt}(?:([^\\s"'>=/]+)(${pt}*=${pt}*(?:[^ 	
-\f\r"'\`<>=]|("|')|))|$)`, "g"), Dt = /'/g, Lt = /"/g, Jt = /^(?:script|style|textarea|title)$/i, hi = (e) => (t, ...i) => ({ _$litType$: e, strings: t, values: i }), l = hi(1), Te = Symbol.for("lit-noChange"), h = Symbol.for("lit-nothing"), Nt = /* @__PURE__ */ new WeakMap(), ye = we.createTreeWalker(we, 129);
+const vt = globalThis, At = (e) => e, rt = vt.trustedTypes, Tt = rt ? rt.createPolicy("lit-html", { createHTML: (e) => e }) : void 0, Wt = "$lit$", ce = `lit$${Math.random().toFixed(9).slice(2)}$`, Vt = "?" + ce, ci = `<${Vt}>`, we = document, We = () => we.createComment(""), Ve = (e) => e === null || typeof e != "object" && typeof e != "function", wt = Array.isArray, pi = (e) => wt(e) || typeof e?.[Symbol.iterator] == "function", pt = `[ 	
+\f\r]`, Fe = /<(?:(!--|\/[^a-zA-Z])|(\/?[a-zA-Z][^>\s]*)|(\/?$))/g, zt = /-->/g, Mt = />/g, be = RegExp(`>|${pt}(?:([^\\s"'>=/]+)(${pt}*=${pt}*(?:[^ 	
+\f\r"'\`<>=]|("|')|))|$)`, "g"), Dt = /'/g, Lt = /"/g, Jt = /^(?:script|style|textarea|title)$/i, hi = (e) => (t, ...i) => ({ _$litType$: e, strings: t, values: i }), l = hi(1), Ae = Symbol.for("lit-noChange"), u = Symbol.for("lit-nothing"), Nt = /* @__PURE__ */ new WeakMap(), ye = we.createTreeWalker(we, 129);
 function Yt(e, t) {
   if (!wt(e) || !e.hasOwnProperty("raw")) throw Error("invalid template strings array");
-  return At !== void 0 ? At.createHTML(t) : t;
+  return Tt !== void 0 ? Tt.createHTML(t) : t;
 }
 const ui = (e, t) => {
   const i = e.length - 1, o = [];
-  let s, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", r = Be;
+  let s, a = t === 2 ? "<svg>" : t === 3 ? "<math>" : "", r = Fe;
   for (let n = 0; n < i; n++) {
     const c = e[n];
-    let p, u, _ = -1, g = 0;
-    for (; g < c.length && (r.lastIndex = g, u = r.exec(c), u !== null); ) g = r.lastIndex, r === Be ? u[1] === "!--" ? r = zt : u[1] !== void 0 ? r = Mt : u[2] !== void 0 ? (Jt.test(u[2]) && (s = RegExp("</" + u[2], "g")), r = be) : u[3] !== void 0 && (r = be) : r === be ? u[0] === ">" ? (r = s ?? Be, _ = -1) : u[1] === void 0 ? _ = -2 : (_ = r.lastIndex - u[2].length, p = u[1], r = u[3] === void 0 ? be : u[3] === '"' ? Lt : Dt) : r === Lt || r === Dt ? r = be : r === zt || r === Mt ? r = Be : (r = be, s = void 0);
+    let p, h, _ = -1, g = 0;
+    for (; g < c.length && (r.lastIndex = g, h = r.exec(c), h !== null); ) g = r.lastIndex, r === Fe ? h[1] === "!--" ? r = zt : h[1] !== void 0 ? r = Mt : h[2] !== void 0 ? (Jt.test(h[2]) && (s = RegExp("</" + h[2], "g")), r = be) : h[3] !== void 0 && (r = be) : r === be ? h[0] === ">" ? (r = s ?? Fe, _ = -1) : h[1] === void 0 ? _ = -2 : (_ = r.lastIndex - h[2].length, p = h[1], r = h[3] === void 0 ? be : h[3] === '"' ? Lt : Dt) : r === Lt || r === Dt ? r = be : r === zt || r === Mt ? r = Fe : (r = be, s = void 0);
     const m = r === be && e[n + 1].startsWith("/>") ? " " : "";
-    a += r === Be ? c + ci : _ >= 0 ? (o.push(p), c.slice(0, _) + Wt + c.slice(_) + ce + m) : c + ce + (_ === -2 ? n : m);
+    a += r === Fe ? c + ci : _ >= 0 ? (o.push(p), c.slice(0, _) + Wt + c.slice(_) + ce + m) : c + ce + (_ === -2 ? n : m);
   }
   return [Yt(e, a + (e[i] || "<?>") + (t === 2 ? "</svg>" : t === 3 ? "</math>" : "")), o];
 };
@@ -341,7 +341,7 @@ class Je {
     let s;
     this.parts = [];
     let a = 0, r = 0;
-    const n = t.length - 1, c = this.parts, [p, u] = ui(t, i);
+    const n = t.length - 1, c = this.parts, [p, h] = ui(t, i);
     if (this.el = Je.createElement(p, o), ye.currentNode = this.el.content, i === 2 || i === 3) {
       const _ = this.el.content.firstChild;
       _.replaceWith(..._.childNodes);
@@ -349,7 +349,7 @@ class Je {
     for (; (s = ye.nextNode()) !== null && c.length < n; ) {
       if (s.nodeType === 1) {
         if (s.hasAttributes()) for (const _ of s.getAttributeNames()) if (_.endsWith(Wt)) {
-          const g = u[r++], m = s.getAttribute(_).split(ce), b = /([.?@])?(.*)/.exec(g);
+          const g = h[r++], m = s.getAttribute(_).split(ce), b = /([.?@])?(.*)/.exec(g);
           c.push({ type: 1, index: a, name: b[2], strings: m, ctor: b[1] === "." ? gi : b[1] === "?" ? mi : b[1] === "@" ? fi : dt }), s.removeAttribute(_);
         } else _.startsWith(ce) && (c.push({ type: 6, index: a }), s.removeAttribute(_));
         if (Jt.test(s.tagName)) {
@@ -373,11 +373,11 @@ class Je {
     return o.innerHTML = t, o;
   }
 }
-function Ae(e, t, i = e, o) {
-  if (t === Te) return t;
+function Te(e, t, i = e, o) {
+  if (t === Ae) return t;
   let s = o !== void 0 ? i._$Co?.[o] : i._$Cl;
   const a = Ve(t) ? void 0 : t._$litDirective$;
-  return s?.constructor !== a && (s?._$AO?.(!1), a === void 0 ? s = void 0 : (s = new a(e), s._$AT(e, i, o)), o !== void 0 ? (i._$Co ??= [])[o] = s : i._$Cl = s), s !== void 0 && (t = Ae(e, s._$AS(e, t.values), s, o)), t;
+  return s?.constructor !== a && (s?._$AO?.(!1), a === void 0 ? s = void 0 : (s = new a(e), s._$AT(e, i, o)), o !== void 0 ? (i._$Co ??= [])[o] = s : i._$Cl = s), s !== void 0 && (t = Te(e, s._$AS(e, t.values), s, o)), t;
 }
 class _i {
   constructor(t, i) {
@@ -412,7 +412,7 @@ class Xe {
     return this._$AM?._$AU ?? this._$Cv;
   }
   constructor(t, i, o, s) {
-    this.type = 2, this._$AH = h, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = o, this.options = s, this._$Cv = s?.isConnected ?? !0;
+    this.type = 2, this._$AH = u, this._$AN = void 0, this._$AA = t, this._$AB = i, this._$AM = o, this.options = s, this._$Cv = s?.isConnected ?? !0;
   }
   get parentNode() {
     let t = this._$AA.parentNode;
@@ -426,7 +426,7 @@ class Xe {
     return this._$AB;
   }
   _$AI(t, i = this) {
-    t = Ae(this, t, i), Ve(t) ? t === h || t == null || t === "" ? (this._$AH !== h && this._$AR(), this._$AH = h) : t !== this._$AH && t !== Te && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : pi(t) ? this.k(t) : this._(t);
+    t = Te(this, t, i), Ve(t) ? t === u || t == null || t === "" ? (this._$AH !== u && this._$AR(), this._$AH = u) : t !== this._$AH && t !== Ae && this._(t) : t._$litType$ !== void 0 ? this.$(t) : t.nodeType !== void 0 ? this.T(t) : pi(t) ? this.k(t) : this._(t);
   }
   O(t) {
     return this._$AA.parentNode.insertBefore(t, this._$AB);
@@ -435,7 +435,7 @@ class Xe {
     this._$AH !== t && (this._$AR(), this._$AH = this.O(t));
   }
   _(t) {
-    this._$AH !== h && Ve(this._$AH) ? this._$AA.nextSibling.data = t : this.T(we.createTextNode(t)), this._$AH = t;
+    this._$AH !== u && Ve(this._$AH) ? this._$AA.nextSibling.data = t : this.T(we.createTextNode(t)), this._$AH = t;
   }
   $(t) {
     const { values: i, _$litType$: o } = t, s = typeof o == "number" ? this._$AC(t) : (o.el === void 0 && (o.el = Je.createElement(Yt(o.h, o.h[0]), this.options)), o);
@@ -458,8 +458,8 @@ class Xe {
   }
   _$AR(t = this._$AA.nextSibling, i) {
     for (this._$AP?.(!1, !0, i); t !== this._$AB; ) {
-      const o = Tt(t).nextSibling;
-      Tt(t).remove(), t = o;
+      const o = At(t).nextSibling;
+      At(t).remove(), t = o;
     }
   }
   setConnected(t) {
@@ -474,21 +474,21 @@ class dt {
     return this._$AM._$AU;
   }
   constructor(t, i, o, s, a) {
-    this.type = 1, this._$AH = h, this._$AN = void 0, this.element = t, this.name = i, this._$AM = s, this.options = a, o.length > 2 || o[0] !== "" || o[1] !== "" ? (this._$AH = Array(o.length - 1).fill(new String()), this.strings = o) : this._$AH = h;
+    this.type = 1, this._$AH = u, this._$AN = void 0, this.element = t, this.name = i, this._$AM = s, this.options = a, o.length > 2 || o[0] !== "" || o[1] !== "" ? (this._$AH = Array(o.length - 1).fill(new String()), this.strings = o) : this._$AH = u;
   }
   _$AI(t, i = this, o, s) {
     const a = this.strings;
     let r = !1;
-    if (a === void 0) t = Ae(this, t, i, 0), r = !Ve(t) || t !== this._$AH && t !== Te, r && (this._$AH = t);
+    if (a === void 0) t = Te(this, t, i, 0), r = !Ve(t) || t !== this._$AH && t !== Ae, r && (this._$AH = t);
     else {
       const n = t;
       let c, p;
-      for (t = a[0], c = 0; c < a.length - 1; c++) p = Ae(this, n[o + c], i, c), p === Te && (p = this._$AH[c]), r ||= !Ve(p) || p !== this._$AH[c], p === h ? t = h : t !== h && (t += (p ?? "") + a[c + 1]), this._$AH[c] = p;
+      for (t = a[0], c = 0; c < a.length - 1; c++) p = Te(this, n[o + c], i, c), p === Ae && (p = this._$AH[c]), r ||= !Ve(p) || p !== this._$AH[c], p === u ? t = u : t !== u && (t += (p ?? "") + a[c + 1]), this._$AH[c] = p;
     }
     r && !s && this.j(t);
   }
   j(t) {
-    t === h ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
+    t === u ? this.element.removeAttribute(this.name) : this.element.setAttribute(this.name, t ?? "");
   }
 }
 class gi extends dt {
@@ -496,7 +496,7 @@ class gi extends dt {
     super(...arguments), this.type = 3;
   }
   j(t) {
-    this.element[this.name] = t === h ? void 0 : t;
+    this.element[this.name] = t === u ? void 0 : t;
   }
 }
 class mi extends dt {
@@ -504,7 +504,7 @@ class mi extends dt {
     super(...arguments), this.type = 4;
   }
   j(t) {
-    this.element.toggleAttribute(this.name, !!t && t !== h);
+    this.element.toggleAttribute(this.name, !!t && t !== u);
   }
 }
 class fi extends dt {
@@ -512,8 +512,8 @@ class fi extends dt {
     super(t, i, o, s, a), this.type = 5;
   }
   _$AI(t, i = this) {
-    if ((t = Ae(this, t, i, 0) ?? h) === Te) return;
-    const o = this._$AH, s = t === h && o !== h || t.capture !== o.capture || t.once !== o.once || t.passive !== o.passive, a = t !== h && (o === h || s);
+    if ((t = Te(this, t, i, 0) ?? u) === Ae) return;
+    const o = this._$AH, s = t === u && o !== u || t.capture !== o.capture || t.once !== o.once || t.passive !== o.passive, a = t !== u && (o === u || s);
     s && this.element.removeEventListener(this.name, this, o), a && this.element.addEventListener(this.name, this, t), this._$AH = t;
   }
   handleEvent(t) {
@@ -528,7 +528,7 @@ class bi {
     return this._$AM._$AU;
   }
   _$AI(t) {
-    Ae(this, t);
+    Te(this, t);
   }
 }
 const yi = vt.litHtmlPolyfillSupport;
@@ -567,7 +567,7 @@ class ee extends je {
     super.disconnectedCallback(), this._$Do?.setConnected(!1);
   }
   render() {
-    return Te;
+    return Ae;
   }
 }
 ee._$litElement$ = !0, ee.finalized = !0, xt.litElementHydrateSupport?.({ LitElement: ee });
@@ -610,7 +610,7 @@ const wi = { attribute: !0, type: String, converter: st, reflect: !1, hasChanged
   }
   throw Error("Unsupported decorator location: " + o);
 };
-function q(e) {
+function H(e) {
   return (t, i) => typeof i == "object" ? xi(e, t, i) : ((o, s, a) => {
     const r = s.hasOwnProperty(a);
     return s.constructor.createProperty(a, o), r ? Object.getOwnPropertyDescriptor(s, a) : void 0;
@@ -622,7 +622,7 @@ function q(e) {
  * SPDX-License-Identifier: BSD-3-Clause
  */
 function f(e) {
-  return q({ ...e, state: !0, attribute: !1 });
+  return H({ ...e, state: !0, attribute: !1 });
 }
 /**
  * @license
@@ -755,7 +755,7 @@ function Ii(e, t, i) {
   } else if (a === o || a.startsWith(o) || r.includes(o)) return !0;
   return !1;
 }
-let H = class extends ee {
+let q = class extends ee {
   constructor() {
     super(...arguments), this._open = !1, this._loading = !1, this._mimeType = "video/mp4", this._playMethod = "DirectPlay", this._subtitleTracks = [], this._portalContainer = null, this._handleKeyDown = (e) => {
       e.key === "Escape" && this._open && (this.close(), e.stopPropagation());
@@ -842,8 +842,8 @@ let H = class extends ee {
     if (!o || o.length === 0) return [];
     const s = (i.subtitleMode || "auto").toLowerCase(), a = (i.subtitleLanguage || "").split(",").map((p) => p.trim().toLowerCase()).filter(Boolean);
     let r = -1;
-    const n = (p, u = !1) => {
-      const _ = o.filter((m) => u && !m.IsForced ? !1 : Ii(m.Language, m.DisplayTitle || m.Title, p));
+    const n = (p, h = !1) => {
+      const _ = o.filter((m) => h && !m.IsForced ? !1 : Ii(m.Language, m.DisplayTitle || m.Title, p));
       return _.length === 0 ? void 0 : _.find((m) => {
         const b = (m.DisplayTitle || m.Title || "").toLowerCase();
         return !m.IsHearingImpaired && !b.includes("sdh") && !b.includes("hearing impaired");
@@ -853,39 +853,39 @@ let H = class extends ee {
       r = -1;
     else if (s === "forced_only") {
       for (const p of a) {
-        const u = n(p, !0);
-        if (u) {
-          r = u.Index;
+        const h = n(p, !0);
+        if (h) {
+          r = h.Index;
           break;
         }
       }
       if (r === -1) {
-        const p = o.find((u) => u.IsForced);
+        const p = o.find((h) => h.IsForced);
         p && (r = p.Index);
       }
     } else {
       for (const p of a) {
-        const u = n(p);
-        if (u) {
-          r = u.Index;
+        const h = n(p);
+        if (h) {
+          r = h.Index;
           break;
         }
       }
       if (r === -1 && s === "auto") {
         const p = (i.hass?.language || "").split("-")[0].toLowerCase();
         if (p) {
-          const u = n(p);
-          u && (r = u.Index);
+          const h = n(p);
+          h && (r = h.Index);
         }
       }
       if (r === -1 && s === "auto") {
-        const p = o.find((u) => u.IsDefault);
+        const p = o.find((h) => h.IsDefault);
         p && (r = p.Index);
       }
     }
     const c = e.media_source_id || e.MediaSources?.[0]?.Id || e.id;
     return o.map((p) => {
-      const u = (p.Language || "en").trim().toLowerCase(), _ = u.length === 3 && ji[u] || u, g = p.DisplayTitle || p.Title || (_ ? _.toUpperCase() : `Subtitle ${p.Index}`), m = `/api/jellyha/subtitles/${t}/${e.id}/${p.Index}/stream.vtt?media_source_id=${encodeURIComponent(c)}`;
+      const h = (p.Language || "en").trim().toLowerCase(), _ = h.length === 3 && ji[h] || h, g = p.DisplayTitle || p.Title || (_ ? _.toUpperCase() : `Subtitle ${p.Index}`), m = `/api/jellyha/subtitles/${t}/${e.id}/${p.Index}/stream.vtt?media_source_id=${encodeURIComponent(c)}`;
       return {
         index: p.Index,
         label: g,
@@ -1239,7 +1239,7 @@ let H = class extends ee {
                 <div class="jellyha-player-surface" @click=${(a) => a.stopPropagation()}>
                     <div class="jellyha-player-header">
                         <div class="jellyha-player-title-wrap">
-                            ${i ? l`<span class="jellyha-player-subtitle">${i}</span>` : h}
+                            ${i ? l`<span class="jellyha-player-subtitle">${i}</span>` : u}
                             <span class="jellyha-player-title" title="${o}">${o}</span>
                         </div>
                         <button class="jellyha-player-close-btn" @click=${this.close} aria-label="Close" title="Close">
@@ -1262,7 +1262,7 @@ let H = class extends ee {
                             <div class="jellyha-player-audio-wrap">
                                 ${e?.poster_url ? l`
                                     <img class="jellyha-player-audio-poster" src="${e.poster_url}" alt="" />
-                                ` : h}
+                                ` : u}
                                 <audio class="jellyha-player-audio" controls autoplay>
                                     <source src="${this._streamUrl}" type="${this._mimeType}">
                                     Audio format not supported.
@@ -1272,7 +1272,7 @@ let H = class extends ee {
                             <video class="jellyha-player-video" controls autoplay playsinline crossorigin="anonymous" @loadedmetadata=${() => this._activateDefaultSubtitle()}>
                                 ${!this._streamUrl?.includes(".m3u8") && this._mimeType !== "application/x-mpegURL" && this._mimeType !== "application/vnd.apple.mpegurl" ? l`
                                     <source src="${this._streamUrl}" type="${this._mimeType}">
-                                ` : h}
+                                ` : u}
                                 ${this._subtitleTracks.map((a) => l`
                                     <track
                                         id="jellyha-track-${a.index}"
@@ -1292,48 +1292,48 @@ let H = class extends ee {
     nt(s, this._portalContainer);
   }
   render() {
-    return h;
+    return u;
   }
 };
 Y([
-  q({ attribute: !1 })
-], H.prototype, "hass", 2);
+  H({ attribute: !1 })
+], q.prototype, "hass", 2);
 Y([
   f()
-], H.prototype, "_open", 2);
+], q.prototype, "_open", 2);
 Y([
   f()
-], H.prototype, "_loading", 2);
+], q.prototype, "_loading", 2);
 Y([
   f()
-], H.prototype, "_error", 2);
+], q.prototype, "_error", 2);
 Y([
   f()
-], H.prototype, "_streamUrl", 2);
+], q.prototype, "_streamUrl", 2);
 Y([
   f()
-], H.prototype, "_mimeType", 2);
+], q.prototype, "_mimeType", 2);
 Y([
   f()
-], H.prototype, "_playMethod", 2);
+], q.prototype, "_playMethod", 2);
 Y([
   f()
-], H.prototype, "_playSessionId", 2);
+], q.prototype, "_playSessionId", 2);
 Y([
   f()
-], H.prototype, "_hlsToken", 2);
+], q.prototype, "_hlsToken", 2);
 Y([
   f()
-], H.prototype, "_item", 2);
+], q.prototype, "_item", 2);
 Y([
   f()
-], H.prototype, "_subtitleTracks", 2);
-H = Y([
+], q.prototype, "_subtitleTracks", 2);
+q = Y([
   xe("jellyha-browser-player")
-], H);
-let He = null;
+], q);
+let qe = null;
 async function Gt(e) {
-  (!He || !document.body.contains(He)) && (He = document.createElement("jellyha-browser-player"), document.body.appendChild(He)), await He.play(e);
+  (!qe || !document.body.contains(qe)) && (qe = document.createElement("jellyha-browser-player"), document.body.appendChild(qe)), await qe.play(e);
 }
 const Xt = ze`
   .list-metadata {
@@ -5462,11 +5462,11 @@ function gt(e, t, i) {
   if (!o)
     return { isAvailable: !1, isStateless: !1, isOn: !1 };
   if (i && e.states[i]) {
-    const p = e.states[i], u = p.state.toLowerCase();
+    const p = e.states[i], h = p.state.toLowerCase();
     return {
-      isAvailable: u !== "unavailable" && u !== "unknown",
+      isAvailable: h !== "unavailable" && h !== "unknown",
       isStateless: !1,
-      isOn: u === "on" || u === "playing" || u === "paused" || u === "idle" || u === "home" || u === "active",
+      isOn: h === "on" || h === "playing" || h === "paused" || h === "idle" || h === "home" || h === "active",
       state: p.state,
       entityId: i
     };
@@ -5481,7 +5481,7 @@ function gt(e, t, i) {
     entityId: t
   };
 }
-async function Ti(e, t, i) {
+async function Ai(e, t, i) {
   if (!e || !t) return;
   const o = t.split(".")[0], s = gt(e, t, i);
   try {
@@ -5509,7 +5509,7 @@ async function Ti(e, t, i) {
     console.error(`[JellyHA] Failed to call power action for ${t}:`, a);
   }
 }
-function Ai(e) {
+function Ti(e) {
   try {
     if (typeof localStorage < "u") {
       const t = localStorage.getItem(`jellyha_volume_${e}`);
@@ -5550,15 +5550,15 @@ function mt(e, t, i, o) {
       isNaN(m) || (n = m > 1 ? m / 100 : m);
     }
   }
-  n === void 0 && typeof o == "number" && (n = o / 100), n === void 0 && (n = Ai(s));
+  n === void 0 && typeof o == "number" && (n = o / 100), n === void 0 && (n = Ti(s));
   const c = typeof n == "number" ? Math.max(0, Math.min(1, n)) : 0, p = Math.round(c * 100);
   n !== void 0 && Zt(s, c);
-  const u = !!r.is_volume_muted;
+  const h = !!r.is_volume_muted;
   return {
     canControl: a.state !== "unavailable" && a.state !== "unknown",
     volumeLevel: c,
     volumePercent: p,
-    isMuted: u,
+    isMuted: h,
     entityId: s
   };
 }
@@ -5622,44 +5622,44 @@ function Ut(e, t, i) {
   if (!e || !t?.states) return null;
   const o = [];
   i?.default_cast_device && !o.includes(i.default_cast_device) && o.push(i.default_cast_device), i?.default_client_device && !o.includes(i.default_client_device) && o.push(i.default_client_device);
-  for (const u of Object.keys(t.states))
-    u.startsWith("media_player.jellyha_") && !u.includes("_library_browser") && !u.endsWith("_browser") && !o.includes(u) && o.push(u);
+  for (const h of Object.keys(t.states))
+    h.startsWith("media_player.jellyha_") && !h.includes("_library_browser") && !h.endsWith("_browser") && !o.includes(h) && o.push(h);
   let s = null;
   const a = ut(e.id), r = (e.type || "").toLowerCase(), n = r === "episode" || !!(e.series_name && e.name && e.series_name !== e.name && r !== "series"), c = r === "series", p = r === "season";
-  for (const u of o) {
-    const _ = t.states[u];
+  for (const h of o) {
+    const _ = t.states[h];
     if (!_) continue;
     const g = _.state;
     if (g !== "playing" && g !== "paused" && g !== "buffering")
       continue;
-    const m = _.attributes?.media_title || _.attributes?.title, b = _.attributes?.media_series_title || _.attributes?.series_title, v = _.attributes?.item_id || _.attributes?.media_content_id, y = _.attributes?.series_id || _.attributes?.media_series_id, w = _.attributes?.media_season ?? _.attributes?.season, k = _.attributes?.media_episode ?? _.attributes?.episode, $ = ut(v), S = ut(y);
+    const m = _.attributes?.media_title || _.attributes?.title, b = _.attributes?.media_series_title || _.attributes?.series_title, v = _.attributes?.item_id || _.attributes?.media_content_id, y = _.attributes?.series_id || _.attributes?.media_series_id, w = _.attributes?.media_season ?? _.attributes?.season, S = _.attributes?.media_episode ?? _.attributes?.episode, C = ut(v), P = ut(y);
     let x = !1;
-    if ($ && a && $ === a)
+    if (C && a && C === a)
       x = !0;
     else if (n)
-      if ($ && a && $ !== a)
+      if (C && a && C !== a)
         x = !1;
       else {
-        const j = !e.series_name || !b || de(e.series_name, b), C = !!(e.name && (de(m, e.name) || Rt(m, e.name))), L = e.season != null && e.episode != null && w != null && k != null && Number(e.season) === Number(w) && Number(e.episode) === Number(k);
-        !(e.season != null && w != null && Number(e.season) !== Number(w) || e.episode != null && k != null && Number(e.episode) !== Number(k)) && j && (C || L) && (x = !0);
+        const I = !e.series_name || !b || de(e.series_name, b), j = !!(e.name && (de(m, e.name) || Rt(m, e.name))), L = e.season != null && e.episode != null && w != null && S != null && Number(e.season) === Number(w) && Number(e.episode) === Number(S);
+        !(e.season != null && w != null && Number(e.season) !== Number(w) || e.episode != null && S != null && Number(e.episode) !== Number(S)) && I && (j || L) && (x = !0);
       }
     else if (c) {
-      const j = !!(S && a && S === a || $ && a && $ === a), C = !!(e.name && (de(b, e.name) || de(m, e.name)));
-      (j || C) && (x = !0);
+      const I = !!(P && a && P === a || C && a && C === a), j = !!(e.name && (de(b, e.name) || de(m, e.name)));
+      (I || j) && (x = !0);
     } else if (p) {
-      const j = !e.series_name || !b || de(e.series_name, b), C = e.season != null && w != null && Number(e.season) === Number(w), L = !!(e.name && de(m, e.name));
-      j && (C || L) && (x = !0);
+      const I = !e.series_name || !b || de(e.series_name, b), j = e.season != null && w != null && Number(e.season) === Number(w), L = !!(e.name && de(m, e.name));
+      I && (j || L) && (x = !0);
     } else
       e.name && (m || b) && (x = !!(m && (de(m, e.name) || Rt(m, e.name)) || b && de(b, e.name)));
     if (x) {
-      const j = {
-        entityId: u,
+      const I = {
+        entityId: h,
         state: g,
-        friendlyName: _.attributes?.friendly_name || u
+        friendlyName: _.attributes?.friendly_name || h
       };
       if (g === "playing")
-        return j;
-      s || (s = j);
+        return I;
+      s || (s = I);
     }
   }
   return s;
@@ -5695,14 +5695,14 @@ function Ni(e) {
 function re(e, t = "_blank") {
   return Ni(e) ? typeof window > "u" || typeof window.open != "function" ? null : window.open(e.trim(), t, "noopener,noreferrer") : (console.warn("Blocked opening unsafe URL:", e), null);
 }
-var Ri = Object.defineProperty, Ui = Object.getOwnPropertyDescriptor, I = (e, t, i, o) => {
+var Ri = Object.defineProperty, Ui = Object.getOwnPropertyDescriptor, $ = (e, t, i, o) => {
   for (var s = o > 1 ? void 0 : o ? Ui(t, i) : t, a = e.length - 1, r; a >= 0; a--)
     (r = e[a]) && (s = (o ? r(t, i, s) : r(s)) || s);
   return o && s && Ri(t, i, s), s;
 };
-let P = class extends ee {
+let k = class extends ee {
   constructor() {
-    super(...arguments), this._playTargets = [], this._showTargetPicker = !1, this._open = !1, this._confirmDelete = !1, this._viewMode = "default", this._episodes = [], this._episodesLoading = !1, this._episodesError = "", this._selectedSeason = "all", this._touchStartY = 0, this._currentTranslateY = 0, this._isDragging = !1, this._swipeClosingThreshold = 100, this._rowTouchStartX = 0, this._rowTouchStartY = 0, this._portalContainer = null, this._handleKeyDown = (e) => {
+    super(...arguments), this._playTargets = [], this._showTargetPicker = !1, this._open = !1, this._confirmDelete = !1, this._viewMode = "default", this._episodes = [], this._episodesLoading = !1, this._episodesError = "", this._selectedSeason = "all", this._seriesCatalog = null, this._seriesCatalogLoading = !1, this._seriesCatalogError = "", this._expandedCatalogSeasons = /* @__PURE__ */ new Set(), this._downloadBusy = /* @__PURE__ */ new Set(), this._downloadRequested = /* @__PURE__ */ new Set(), this._downloadMessage = "", this._seriesIds = {}, this._touchStartY = 0, this._currentTranslateY = 0, this._isDragging = !1, this._swipeClosingThreshold = 100, this._rowTouchStartX = 0, this._rowTouchStartY = 0, this._portalContainer = null, this._handleKeyDown = (e) => {
       if (e.key === "Escape") {
         if (this._showTargetPicker) {
           this._closeTargetPicker(), e.stopPropagation();
@@ -5933,7 +5933,7 @@ let P = class extends ee {
     super.disconnectedCallback(), window.removeEventListener("keydown", this._handleKeyDown), this._portalContainer && (this._portalContainer.remove(), this._portalContainer = null), document.body.style.overflow = "";
   }
   async showDialog(e) {
-    this._item = e.item, this.hass = e.hass, this._defaultCastDevice = e.defaultCastDevice, this._defaultClientDevice = e.defaultClientDevice, this._serverEntityId = e.serverEntityId, this._subtitleMode = e.subtitleMode, this._subtitleLanguage = e.subtitleLanguage, this._playTargets = e.playTargets || [], this._showEntityName = e.showEntityName, this._showTargetPicker = !1, this._pendingPlayItem = void 0, this._open = !0, this._nextUpItem = void 0, this._viewMode = "default", this._episodes = [], this._episodesLoading = !1, this._episodesError = "", this._selectedSeason = "all", document.body.style.overflow = "hidden", this._item.type === "Series" && (this._fetchNextUp(this._item), this._fetchEpisodes()), this._fetchFullDetails(this._item.id), await this.updateComplete;
+    this._item = e.item, this.hass = e.hass, this._defaultCastDevice = e.defaultCastDevice, this._defaultClientDevice = e.defaultClientDevice, this._serverEntityId = e.serverEntityId, this._subtitleMode = e.subtitleMode, this._subtitleLanguage = e.subtitleLanguage, this._playTargets = e.playTargets || [], this._seerrUrl = e.seerrUrl, this._showEntityName = e.showEntityName, this._showTargetPicker = !1, this._pendingPlayItem = void 0, this._open = !0, this._nextUpItem = void 0, this._viewMode = "default", this._episodes = [], this._episodesLoading = !1, this._episodesError = "", this._selectedSeason = "all", this._seriesCatalog = null, this._seriesCatalogLoading = !1, this._seriesCatalogError = "", this._expandedCatalogSeasons = /* @__PURE__ */ new Set(), this._downloadBusy = /* @__PURE__ */ new Set(), this._downloadRequested = /* @__PURE__ */ new Set(), this._downloadMessage = "", this._seriesIds = {}, document.body.style.overflow = "hidden", this._item.type === "Series" && (this._fetchNextUp(this._item), this._fetchEpisodes(), this._fetchSeriesCatalog()), this._fetchFullDetails(this._item.id), await this.updateComplete;
   }
   async _fetchFullDetails(e) {
     try {
@@ -5998,11 +5998,100 @@ let P = class extends ee {
           season: s
         });
       }
-      this._episodes = i?.items || [];
+      if (this._episodes = i?.items || [], this._seriesCatalog?.length && this._episodes.length) {
+        const o = this._episodes.find(
+          (s) => typeof s.season == "number"
+        )?.season;
+        o != null && (this._expandedCatalogSeasons = /* @__PURE__ */ new Set([o]));
+      }
     } catch (i) {
       console.warn("Failed to fetch episodes:", i), this._episodes = [], this._episodesError = "Could not load episodes.";
     } finally {
       this._episodesLoading = !1, this.requestUpdate();
+    }
+  }
+  async _fetchSeriesCatalog() {
+    const e = this._item;
+    if (!(!e || e.type !== "Series" || !this._seerrUrl)) {
+      this._seriesCatalogLoading = !0, this._seriesCatalogError = "", this.requestUpdate();
+      try {
+        let t = Number(e.tmdb_id) || 0, i = Number(e.tvdb_id) || 0;
+        if (!t)
+          try {
+            const h = await this.hass.callWS({
+              type: "jellyha/get_item",
+              item_id: e.id,
+              ...this._serverEntityId ? { server_entity_id: this._serverEntityId } : {},
+              ...e.config_entry_id ? { config_entry_id: e.config_entry_id } : {}
+            });
+            h?.item && (t = Number(h.item.tmdb_id) || 0, i = i || Number(h.item.tvdb_id) || 0);
+          } catch (h) {
+            console.warn("Failed to resolve series provider IDs:", h);
+          }
+        if (!t) {
+          this._seriesCatalogError = "No TMDB ID is available for this series.";
+          return;
+        }
+        const o = this._seerrUrl.replace(/\/$/, ""), s = await fetch(`${o}/api/v1/tv/${t}`, {
+          headers: { Accept: "application/json" },
+          cache: "no-store"
+        });
+        if (!s.ok) throw new Error(`Seerr TV ${s.status}`);
+        const a = await s.json();
+        if (i = i || Number(a.externalIds?.tvdbId) || 0, this._item?.id !== e.id) return;
+        this._seriesIds = { tmdbId: t, tvdbId: i || void 0 };
+        const r = (a.seasons || []).filter((h) => Number(h.episodeCount) > 0).map((h) => ({
+          seasonNumber: Number(h.seasonNumber),
+          episodeCount: Number(h.episodeCount) || 0
+        })), n = await Promise.all(
+          r.map(async (h) => {
+            try {
+              const _ = await fetch(
+                `${o}/api/v1/tv/${t}/season/${h.seasonNumber}`,
+                {
+                  headers: { Accept: "application/json" },
+                  cache: "no-store"
+                }
+              );
+              if (!_.ok)
+                throw new Error(`Seerr season ${_.status}`);
+              const g = await _.json();
+              return {
+                seasonNumber: h.seasonNumber,
+                episodes: (g.episodes || []).map(
+                  (m) => ({
+                    seasonNumber: h.seasonNumber,
+                    episodeNumber: Number(m.episodeNumber),
+                    name: m.name,
+                    overview: m.overview,
+                    airDate: m.airDate
+                  })
+                )
+              };
+            } catch (_) {
+              return console.warn(
+                `Failed to load season ${h.seasonNumber}:`,
+                _
+              ), {
+                seasonNumber: h.seasonNumber,
+                episodes: []
+              };
+            }
+          })
+        );
+        if (this._item?.id !== e.id) return;
+        this._seriesCatalog = n;
+        const c = this._episodes.find(
+          (h) => typeof h.season == "number"
+        )?.season, p = n.some(
+          (h) => h.seasonNumber === c
+        ) ? c : n.find((h) => h.seasonNumber !== 0)?.seasonNumber ?? n[0]?.seasonNumber;
+        this._expandedCatalogSeasons = p != null ? /* @__PURE__ */ new Set([p]) : /* @__PURE__ */ new Set();
+      } catch (t) {
+        this._item?.id === e.id && (this._seriesCatalogError = t?.message || "Could not load the full season list.");
+      } finally {
+        this._item?.id === e.id && (this._seriesCatalogLoading = !1, this.requestUpdate());
+      }
     }
   }
   updated() {
@@ -6482,6 +6571,98 @@ let P = class extends ee {
             .season-group-header span {
                 font-size: 0.75rem;
                 color: #9ea4b5;
+            }
+            .season-group-actions {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            .download-season-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                border: 1px solid rgba(3, 169, 244, 0.35);
+                background: rgba(3, 169, 244, 0.12);
+                color: #7dd3fc;
+                border-radius: 8px;
+                padding: 5px 8px;
+                font-size: 0.72rem;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .download-season-btn:hover {
+                background: rgba(3, 169, 244, 0.22);
+            }
+            .download-season-btn:disabled {
+                opacity: 0.55;
+                cursor: default;
+            }
+            .download-season-btn ha-icon {
+                --mdc-icon-size: 15px;
+            }
+            .season-toggle-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 3px;
+                border: 0;
+                background: transparent;
+                color: #9ea4b5;
+                border-radius: 7px;
+                padding: 4px 5px;
+                font-size: 0.72rem;
+                cursor: pointer;
+            }
+            .season-toggle-btn:hover {
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.06);
+            }
+            .season-toggle-btn ha-icon {
+                --mdc-icon-size: 16px;
+            }
+            .download-note {
+                color: #7dd3fc;
+            }
+            .episode-row.missing {
+                opacity: 0.58;
+                cursor: default;
+                background: rgba(255, 255, 255, 0.025);
+            }
+            .episode-row.missing:hover {
+                transform: none;
+                background: rgba(255, 255, 255, 0.035);
+                border-color: rgba(255, 255, 255, 0.12);
+            }
+            .missing-thumb {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(0,0,0,0.4));
+            }
+            .missing-thumb ha-icon {
+                --mdc-icon-size: 28px;
+                color: #7a8191;
+            }
+            .missing-badge {
+                color: #fbbf24 !important;
+                font-size: 0.66rem !important;
+                font-weight: 800;
+                letter-spacing: 0.06em;
+            }
+            .missing-overview {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                opacity: 0.75;
+            }
+            .download-episode-btn {
+                color: #7dd3fc;
+            }
+            .download-episode-btn:disabled {
+                opacity: 0.5;
+                cursor: default;
             }
             .season-group-list {
                 display: flex;
@@ -7230,7 +7411,7 @@ let P = class extends ee {
                             <div class="backdrop-hero">
                                 <img class="backdrop-img" src="${e}" alt="" />
                             </div>
-                        ` : h;
+                        ` : u;
     })()}
                     ${this._viewMode === "episodes" ? this._renderEpisodesContent() : this._renderDefaultContent()}
                     ${this._renderTargetPickerOverlay()}
@@ -7265,13 +7446,13 @@ let P = class extends ee {
     }} title="View All Episodes" type="button">
                                         <ha-icon icon="mdi:format-list-bulleted"></ha-icon>
                                     </button>
-                                ` : h}
+                                ` : u}
 
                                 ${e.trailer_url ? l`
                                     <button class="action-btn" @click=${this._handleWatchTrailer} title="Watch Trailer">
                                         <ha-icon icon="mdi:filmstrip"></ha-icon>
                                     </button>
-                                ` : h}
+                                ` : u}
 
                                 <button class="action-btn ${e.is_played ? "active" : ""}" @click=${this._handleWatched} title="${e.is_played ? "Mark Unwatched" : "Mark Watched"}">
                                     <ha-icon icon="mdi:check"></ha-icon>
@@ -7287,7 +7468,7 @@ let P = class extends ee {
                                     <ha-icon icon="mdi:open-in-new"></ha-icon>
                                 </a>
 
-                                ${this.hass?.user?.is_admin === !1 ? h : l`
+                                ${this.hass?.user?.is_admin === !1 ? u : l`
                                 <button class="action-btn btn-danger" @click=${() => {
       this._haptic(), this._confirmDelete = !0;
     }} title="Delete Item">
@@ -7302,11 +7483,11 @@ let P = class extends ee {
                 <div class="header-group">
                     <h1>${e.name}</h1>
                     <div class="header-sub">
-                        ${e.series_name ? l`<span>${e.series_name}</span>` : h}
-                        ${e.type === "Episode" && e.season != null && e.episode != null ? l`<span class="badge">S${String(e.season).padStart(2, "0")}E${String(e.episode).padStart(2, "0")}</span>` : h}
-                        ${i ? l`<span>${i}</span>` : h}
+                        ${e.series_name ? l`<span>${e.series_name}</span>` : u}
+                        ${e.type === "Episode" && e.season != null && e.episode != null ? l`<span class="badge">S${String(e.season).padStart(2, "0")}E${String(e.episode).padStart(2, "0")}</span>` : u}
+                        ${i ? l`<span>${i}</span>` : u}
                         <span class="badge">${e.type}</span>
-                        ${e.official_rating ? l`<span class="badge">${e.official_rating}</span>` : h}
+                        ${e.official_rating ? l`<span class="badge">${e.official_rating}</span>` : u}
                     </div>
                 </div>
                 
@@ -7318,7 +7499,7 @@ let P = class extends ee {
                                 <div class="next-up-play-overlay">
                                     <ha-icon icon="mdi:play"></ha-icon>
                                 </div>
-                            ` : h}
+                            ` : u}
                         </div>
                         <div class="next-up-info">
                             <div class="next-up-header-row">
@@ -7326,16 +7507,16 @@ let P = class extends ee {
                                     <span class="next-up-ep-code">S${this._nextUpItem.season}:E${this._nextUpItem.episode ?? this._nextUpItem.index_number}</span>
                                 ` : this._nextUpItem.episode != null || this._nextUpItem.index_number != null ? l`
                                     <span class="next-up-ep-code">E${this._nextUpItem.episode ?? this._nextUpItem.index_number}</span>
-                                ` : h}
+                                ` : u}
                                 <span class="next-up-badge">NEXT UP</span>
                             </div>
                             <h3 class="next-up-title">${this._nextUpItem.name}</h3>
                             <div class="next-up-sub">
-                                ${this._nextUpItem.runtime_minutes ? l`<span>${this._formatRuntime(this._nextUpItem.runtime_minutes)}</span>` : h}
+                                ${this._nextUpItem.runtime_minutes ? l`<span>${this._formatRuntime(this._nextUpItem.runtime_minutes)}</span>` : u}
                                 ${this._nextUpItem.rating ? l`
                                     <span>•</span>
                                     <span class="next-up-rating"><ha-icon icon="mdi:star"></ha-icon> ${this._nextUpItem.rating.toFixed(1)}</span>
-                                ` : h}
+                                ` : u}
                             </div>
                         </div>
                         ${this._playTargets.length > 0 ? l`
@@ -7344,9 +7525,9 @@ let P = class extends ee {
     }}>
                                 <ha-icon icon="${this._getNextUpPlayIcon()}"></ha-icon>
                             </button>
-                        ` : h}
+                        ` : u}
                     </div>
-                ` : h}
+                ` : u}
 
                 <div class="stats-row">
                     ${e.rating ? l`
@@ -7354,31 +7535,31 @@ let P = class extends ee {
                             <ha-icon icon="mdi:star" style="color: #FBC02D;"></ha-icon>
                             <span>${e.rating.toFixed(1)}</span>
                         </div>
-                    ` : h}
+                    ` : u}
                     ${t ? l`
                         ${e.unplayed_count !== void 0 ? l`
                             <div class="stat-item">
                                 <ha-icon icon="mdi:television-classic"></ha-icon>
                                 <span>${e.unplayed_count} Unplayed</span>
                             </div>
-                        ` : h}
+                        ` : u}
                     ` : l`
                         ${e.runtime_minutes ? l`
                             <div class="stat-item">
                                 <ha-icon icon="mdi:clock-outline"></ha-icon>
                                 <span>${this._formatRuntime(e.runtime_minutes)}</span>
                             </div>
-                        ` : h}
+                        ` : u}
                     `}
                 </div>
 
-                ${e.description ? l`<div class="description">${e.description}</div>` : h}
+                ${e.description ? l`<div class="description">${e.description}</div>` : u}
 
                 ${e.genres && e.genres.length > 0 ? l`
                     <div class="genres-list">
                         ${e.genres.map((s) => l`<span class="genre-tag">${s}</span>`)}
                     </div>
-                ` : h}
+                ` : u}
 
                 ${this._renderMediaDetails(t && this._nextUpItem ? this._nextUpItem : e)}
 
@@ -7401,34 +7582,241 @@ let P = class extends ee {
       })
     }));
   }
+  _getCatalogSeasons() {
+    const e = /* @__PURE__ */ new Map();
+    for (const i of this._episodes) {
+      const o = typeof i.season == "number" ? i.season : 0, s = i.episode ?? i.index_number;
+      typeof s == "number" && e.set(`${o}:${s}`, i);
+    }
+    const t = /* @__PURE__ */ new Map();
+    if (this._seriesCatalog?.length)
+      for (const i of this._seriesCatalog) {
+        const o = [], s = /* @__PURE__ */ new Set();
+        for (const a of i.episodes)
+          s.add(a.episodeNumber), o.push({
+            item: e.get(
+              `${i.seasonNumber}:${a.episodeNumber}`
+            ),
+            season: i.seasonNumber,
+            episode: a.episodeNumber,
+            name: a.name,
+            overview: a.overview
+          });
+        for (const a of this._episodes) {
+          if (a.season !== i.seasonNumber) continue;
+          const r = a.episode ?? a.index_number;
+          typeof r != "number" || s.has(r) || o.push({
+            item: a,
+            season: i.seasonNumber,
+            episode: r,
+            name: a.name,
+            overview: a.description
+          });
+        }
+        o.length && t.set(i.seasonNumber, o);
+      }
+    for (const [i, o] of e) {
+      const s = typeof o.season == "number" ? o.season : 0, a = o.episode ?? o.index_number;
+      if (typeof a != "number") continue;
+      const r = t.get(s) || [];
+      r.some((n) => n.episode === a) || r.push({
+        item: o,
+        season: s,
+        episode: a,
+        name: o.name,
+        overview: o.description
+      }), t.set(s, r);
+    }
+    return Array.from(t.entries()).sort(([i], [o]) => i === 0 && o !== 0 ? 1 : o === 0 && i !== 0 ? -1 : i - o).map(([i, o]) => ({
+      season: i,
+      episodes: o.sort((s, a) => s.episode - a.episode)
+    }));
+  }
+  _formatRuntime(e) {
+    if (!e || e <= 0) return "";
+    const t = Math.floor(e / 60), i = Math.round(e % 60);
+    return t > 0 && i > 0 ? `${t}h ${i}m` : t > 0 ? `${t}h` : `${i}m`;
+  }
+  _formatEpisodeRange(e) {
+    const t = [...e].map(Number).sort((o, s) => o - s);
+    return t.length ? t.length === 1 ? `E${String(t[0]).padStart(2, "0")}` : t.every(
+      (o, s) => s === 0 || o === t[s - 1] + 1
+    ) ? `E${String(t[0]).padStart(2, "0")}–E${String(
+      t[t.length - 1]
+    ).padStart(2, "0")}` : t.map((o) => `E${String(o).padStart(2, "0")}`).join(", ") : "";
+  }
+  async _downloadEpisodes(e, t, i = !1) {
+    const o = this._item, s = this._seriesIds;
+    if (!o || !s.tmdbId || !this._seerrUrl) {
+      this._downloadMessage = "Download service is not configured.", this.requestUpdate();
+      return;
+    }
+    const a = t.map(
+      (n) => `${e}:${n}`
+    );
+    i && a.push(`season:${e}`);
+    const r = new Set(this._downloadBusy);
+    a.forEach((n) => r.add(n)), this._downloadBusy = r, this.requestUpdate();
+    try {
+      const n = await fetch(
+        `${this._seerrUrl.replace(/\/$/, "")}/api/cinema/tv-request`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            tmdbId: s.tmdbId,
+            tvdbId: s.tvdbId,
+            title: o.name,
+            seasons: [
+              {
+                seasonNumber: e,
+                episodes: t.length ? t : null
+              }
+            ]
+          })
+        }
+      );
+      if (!n.ok) {
+        let h = "Download failed.";
+        try {
+          const _ = await n.json();
+          _?.message && (h = _.message);
+        } catch {
+        }
+        throw new Error(h);
+      }
+      const c = new Set(this._downloadRequested);
+      a.forEach((h) => c.add(h)), this._downloadRequested = c;
+      const p = this._formatEpisodeRange(t);
+      this._downloadMessage = i ? `Download started for Season ${e}.` : `Download started for S${String(e).padStart(
+        2,
+        "0"
+      )} ${p}.`;
+    } catch (n) {
+      this._downloadMessage = n?.message || "Download failed.";
+    } finally {
+      const n = new Set(this._downloadBusy);
+      a.forEach((c) => n.delete(c)), this._downloadBusy = n, this.requestUpdate();
+    }
+  }
+  _downloadSeason(e, t) {
+    const i = t.filter((o) => !o.item).map((o) => o.episode);
+    i.length && this._downloadEpisodes(e, i, !0);
+  }
+  _renderMissingEpisodeRow(e) {
+    const t = `${e.season}:${e.episode}`, i = this._downloadBusy.has(t), o = this._downloadRequested.has(t);
+    return l`
+            <div class="episode-row missing">
+                <div class="episode-thumb-wrap missing-thumb">
+                    <ha-icon icon="mdi:download-off-outline"></ha-icon>
+                </div>
+                <div class="episode-content">
+                    <div class="episode-header-line">
+                        <span class="episode-number">S${e.season}:E${e.episode}</span>
+                        <span class="missing-badge">NOT DOWNLOADED</span>
+                    </div>
+                    <h4 class="episode-title" title="${e.name || "Episode"}">
+                        ${e.name || `Episode ${e.episode}`}
+                    </h4>
+                    ${e.overview ? l`
+                        <div class="episode-meta missing-overview">${e.overview}</div>
+                    ` : u}
+                </div>
+                <div class="episode-actions">
+                    <button
+                        class="play-episode-btn download-episode-btn"
+                        ?disabled=${i || o}
+                        @click=${(s) => {
+      s.stopPropagation(), this._downloadEpisodes(e.season, [e.episode]);
+    }}
+                        type="button"
+                        title=${o ? "Download started" : "Download episode"}
+                    >
+                        <ha-icon icon=${o ? "mdi:check" : "mdi:download"}></ha-icon>
+                    </button>
+                </div>
+            </div>
+        `;
+  }
   _renderSeriesEpisodesSection() {
-    if (!this._item || this._item.type !== "Series") return h;
-    const e = this._getGroupedSeasons(), t = this._episodes.length;
+    if (!this._item || this._item.type !== "Series") return u;
+    const e = this._getCatalogSeasons(), t = e.reduce(
+      (s, a) => s + a.episodes.length,
+      0
+    ), i = e.reduce(
+      (s, a) => s + a.episodes.filter((r) => r.item).length,
+      0
+    ), o = !!(this._seerrUrl && this._seriesIds.tmdbId);
     return l`
             <div class="series-episodes-section">
                 <div class="series-episodes-heading">
                     <h2>Episodes</h2>
                     ${t > 0 ? l`
-                        <span class="series-episodes-count">${t} episode${t === 1 ? "" : "s"}</span>
-                    ` : h}
+                        <span class="series-episodes-count">
+                            ${this._seriesCatalog ? `${i} of ${t} downloaded` : `${t} episode${t === 1 ? "" : "s"}`}
+                        </span>
+                    ` : u}
                 </div>
+                ${this._seriesCatalogLoading ? l`
+                    <div class="episodes-placeholder">Loading full season list.</div>
+                ` : u}
                 ${this._episodesLoading ? l`
                     <div class="episodes-placeholder">Loading episodes…</div>
                 ` : this._episodesError ? l`
                     <div class="episodes-placeholder">${this._episodesError}</div>
                 ` : e.length === 0 ? l`
                     <div class="episodes-placeholder">No episodes found.</div>
-                ` : e.map(({ season: i, episodes: o }) => l`
-                    <section class="season-group">
-                        <div class="season-group-header">
-                            <h3>${i === 0 ? "Specials" : `Season ${i}`}</h3>
-                            <span>${o.length} episode${o.length === 1 ? "" : "s"}</span>
-                        </div>
-                        <div class="season-group-list">
-                            ${o.map((s) => this._renderInlineEpisodeRow(s))}
-                        </div>
-                    </section>
-                `)}
+                ` : l`
+                    ${this._downloadMessage ? l`
+                        <div class="episodes-placeholder download-note">${this._downloadMessage}</div>
+                    ` : u}
+                    ${e.map(({ season: s, episodes: a }) => {
+      const r = a.filter((h) => !h.item), n = `season:${s}`, c = this._downloadBusy.has(n) || this._downloadRequested.has(n), p = this._expandedCatalogSeasons.has(s);
+      return l`
+                            <section class="season-group">
+                                <div class="season-group-header">
+                                    <h3>${s === 0 ? "Specials" : `Season ${s}`}</h3>
+                                    <div class="season-group-actions">
+                                        <span>${a.length - r.length}/${a.length} downloaded</span>
+                                        ${r.length && o ? l`
+                                            <button
+                                                class="download-season-btn"
+                                                ?disabled=${c}
+                                                @click=${(h) => {
+        h.stopPropagation(), this._downloadSeason(s, a);
+      }}
+                                                type="button"
+                                            >
+                                                <ha-icon icon=${c ? "mdi:check" : "mdi:download"}></ha-icon>
+                                                ${c ? "Downloading" : "Download season"}
+                                            </button>
+                                        ` : u}
+                                        <button
+                                            class="season-toggle-btn"
+                                            @click=${(h) => {
+        h.stopPropagation();
+        const _ = new Set(this._expandedCatalogSeasons);
+        _.has(s) ? _.delete(s) : _.add(s), this._expandedCatalogSeasons = _;
+      }}
+                                            type="button"
+                                            aria-expanded=${p}
+                                        >
+                                            <ha-icon icon=${p ? "mdi:chevron-up" : "mdi:chevron-down"}></ha-icon>
+                                            ${p ? "Hide" : "Show"}
+                                        </button>
+                                    </div>
+                                </div>
+                                ${p ? l`
+                                    <div class="season-group-list">
+                                        ${a.map(
+        (h) => h.item ? this._renderInlineEpisodeRow(h.item) : this._renderMissingEpisodeRow(h)
+      )}
+                                    </div>
+                                ` : u}
+                            </section>
+                        `;
+    })}
+                `}
             </div>
         `;
   }
@@ -7447,26 +7835,26 @@ let P = class extends ee {
                         <div class="episode-play-overlay">
                             <ha-icon icon="mdi:play"></ha-icon>
                         </div>
-                    ` : h}
+                    ` : u}
                 </div>
 
                 <div class="episode-content">
                     ${i || t ? l`
                         <div class="episode-header-line">
-                            ${i ? l`<span class="episode-number">${i}</span>` : h}
-                            ${t ? l`<span class="next-up-badge">NEXT UP</span>` : h}
+                            ${i ? l`<span class="episode-number">${i}</span>` : u}
+                            ${t ? l`<span class="next-up-badge">NEXT UP</span>` : u}
                         </div>
-                    ` : h}
+                    ` : u}
 
                     <h4 class="episode-title" title="${e.name || "Episode"}">${e.name || "Episode"}</h4>
 
                     ${o || e.rating ? l`
                         <div class="episode-meta">
-                            ${o ? l`<span>${o}</span>` : h}
-                            ${o && e.rating ? l`<span class="meta-dot">•</span>` : h}
-                            ${e.rating ? l`<span class="episode-rating"><ha-icon icon="mdi:star"></ha-icon>${e.rating.toFixed(1)}</span>` : h}
+                            ${o ? l`<span>${o}</span>` : u}
+                            ${o && e.rating ? l`<span class="meta-dot">•</span>` : u}
+                            ${e.rating ? l`<span class="episode-rating"><ha-icon icon="mdi:star"></ha-icon>${e.rating.toFixed(1)}</span>` : u}
                         </div>
-                    ` : h}
+                    ` : u}
                 </div>
 
                 <div class="episode-actions">
@@ -7488,25 +7876,21 @@ let P = class extends ee {
                             title="${this._getEpisodePlayTitle()}">
                             <ha-icon icon="${this._getEpisodePlayIcon()}"></ha-icon>
                         </button>
-                    ` : h}
+                    ` : u}
                 </div>
             </div>
         `;
   }
   _renderEpisodesContent() {
     if (!this._item) return l``;
-    const e = this._item.name, t = Array.from(
-      new Set(
-        this._episodes.map((o) => o.season).filter((o) => typeof o == "number" && !isNaN(o))
-      )
-    ).sort((o, s) => o - s), i = this._selectedSeason && this._selectedSeason !== "all" ? this._episodes.filter((o) => o.season === this._selectedSeason) : this._episodes;
+    const e = this._getCatalogSeasons(), t = e.map((o) => o.season), i = this._selectedSeason && this._selectedSeason !== "all" ? e.filter((o) => o.season === this._selectedSeason) : e;
     return l`
             <div class="episodes-container">
                 <div class="episodes-header">
                     <button class="back-btn" @click=${(o) => this._toggleEpisodesView(o)} type="button" title="Back to Details">
                         <ha-icon icon="mdi:arrow-left"></ha-icon>
                     </button>
-                    <h2 class="episodes-title">${e}</h2>
+                    <h2 class="episodes-title">${this._item.name}</h2>
                 </div>
 
                 ${t.length > 1 ? l`
@@ -7517,108 +7901,52 @@ let P = class extends ee {
                         ${t.map((o) => l`
                             <button class="season-tab ${this._selectedSeason === o ? "active" : ""}" @click=${() => {
       this._haptic("selection"), this._selectedSeason = o, this.requestUpdate();
-    }}>Season ${o}</button>
+    }}>${o === 0 ? "Specials" : `Season ${o}`}</button>
                         `)}
                     </div>
-                ` : h}
-                
+                ` : u}
+
                 <div class="episodes-list">
                     ${this._episodesLoading ? l`
-                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">
-                            Loading episodes…
-                        </div>
+                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">Loading episodes�</div>
                     ` : this._episodesError ? l`
-                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">
-                            ${this._episodesError}
-                        </div>
+                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">${this._episodesError}</div>
                     ` : i.length === 0 ? l`
-                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">
-                            No episodes found.
-                        </div>
-                    ` : i.map((o) => {
-      const s = !!(this._nextUpItem && o.id === this._nextUpItem.id), a = o.season ? `S${o.season}:E${o.episode ?? o.index_number ?? ""}` : o.episode ?? o.index_number ? `E${o.episode ?? o.index_number}` : "", r = this._formatRuntime(o.runtime_minutes);
+                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">No episodes found.</div>
+                    ` : i.map(({ season: o, episodes: s }) => {
+      const a = s.filter((p) => !p.item), r = `season:${o}`, n = this._downloadBusy.has(r) || this._downloadRequested.has(r), c = !!(this._seerrUrl && this._seriesIds.tmdbId);
       return l`
-                            <div class="episode-row ${s ? "next-up-highlight" : ""}"
-                                @click=${(n) => {
-        n.stopPropagation(), this._playTargets.length > 0 && this._handlePlayEpisode(o);
-      }}
-                                @touchstart=${(n) => this._handleRowTouchStart(n)}
-                                @touchmove=${(n) => this._handleRowTouchMove(n)}
-                                @touchend=${(n) => this._handleRowTouchEnd(n)}
-                                @touchcancel=${(n) => this._handleRowTouchEnd(n)}
-                                style="${this._playTargets.length === 0 ? "cursor: default;" : ""}">
-                                
-                                <div class="episode-thumb-wrap">
-                                    <img class="episode-thumb" src="${o.poster_url || o.backdrop_url || this._item.poster_url}" alt="${o.name || ""}" />
-                                    ${this._playTargets.length > 0 ? l`
-                                        <div class="episode-play-overlay">
-                                            <ha-icon icon="mdi:play"></ha-icon>
-                                        </div>
-                                    ` : h}
+                            <section class="season-group">
+                                <div class="season-group-header">
+                                    <h3>${o === 0 ? "Specials" : `Season ${o}`}</h3>
+                                    <div class="season-group-actions">
+                                        <span>${s.length - a.length}/${s.length} downloaded</span>
+                                        ${a.length && c ? l`
+                                            <button class="download-season-btn" ?disabled=${n} @click=${(p) => {
+        p.stopPropagation(), this._downloadSeason(o, s);
+      }} type="button">
+                                                <ha-icon icon=${n ? "mdi:check" : "mdi:download"}></ha-icon>
+                                                ${n ? "Downloading" : "Download season"}
+                                            </button>
+                                        ` : u}
+                                    </div>
                                 </div>
-                                
-                                <div class="episode-content">
-                                    ${a || s ? l`
-                                        <div class="episode-header-line">
-                                            ${a ? l`<span class="episode-number">${a}</span>` : h}
-                                            ${s ? l`<span class="next-up-badge">NEXT UP</span>` : h}
-                                        </div>
-                                    ` : h}
-
-                                    <h4 class="episode-title" title="${o.name || "Episode"}">${o.name || "Episode"}</h4>
-                                    
-                                    ${r || o.rating ? l`
-                                        <div class="episode-meta">
-                                            ${r ? l`<span>${r}</span>` : h}
-                                            ${r && o.rating ? l`<span class="meta-dot">•</span>` : h}
-                                            ${o.rating ? l`<span class="episode-rating"><ha-icon icon="mdi:star"></ha-icon>${o.rating.toFixed(1)}</span>` : h}
-                                        </div>
-                                    ` : h}
+                                <div class="season-group-list">
+                                    ${s.map((p) => p.item ? this._renderInlineEpisodeRow(p.item) : this._renderMissingEpisodeRow(p))}
                                 </div>
-
-                                <div class="episode-actions">
-                                    <button class="play-episode-btn watched-btn ${o.is_played ? "active" : ""}"
-                                        @click=${(n) => {
-        n.stopPropagation(), this._handleMarkEpisodeWatched(o);
-      }}
-                                        @touchstart=${(n) => n.stopPropagation()}
-                                        @touchend=${(n) => n.stopPropagation()}
-                                        type="button"
-                                        title="${o.is_played ? "Mark Unwatched" : "Mark Watched"}">
-                                        <ha-icon icon="mdi:check"></ha-icon>
-                                    </button>
-
-                                    ${this._playTargets.length > 0 ? l`
-                                        <button class="play-episode-btn"
-                                            @click=${(n) => {
-        n.stopPropagation(), this._handlePlayEpisode(o);
-      }}
-                                            @touchstart=${(n) => n.stopPropagation()}
-                                            @touchend=${(n) => n.stopPropagation()}
-                                            type="button"
-                                            title="${this._getEpisodePlayTitle()}">
-                                            <ha-icon icon="${this._getEpisodePlayIcon()}"></ha-icon>
-                                        </button>
-                                    ` : h}
-                                </div>
-                            </div>
+                            </section>
                         `;
     })}
                 </div>
             </div>
         `;
   }
-  _formatRuntime(e) {
-    if (!e) return "";
-    const t = Math.floor(e / 60), i = e % 60;
-    return t > 0 ? `${t}h ${i}m` : `${i} min`;
-  }
   _renderMediaDetails(e) {
     const t = [], i = e.media_streams || [], o = i.find((a) => a.Type?.toLowerCase() === "video");
     if (o) {
       if (o.Width && o.Height) {
-        let u = "";
-        o.Width >= 3800 || o.Height >= 2e3 ? u = "4K UHD" : o.Height >= 1e3 || o.Width >= 1900 ? u = "1080p" : o.Height >= 700 || o.Width >= 1200 ? u = "720p" : u = `${o.Width}x${o.Height}`, t.push(l`<span class="tech-chip"><ha-icon icon="mdi:video-outline"></ha-icon>${u}</span>`);
+        let h = "";
+        o.Width >= 3800 || o.Height >= 2e3 ? h = "4K UHD" : o.Height >= 1e3 || o.Width >= 1900 ? h = "1080p" : o.Height >= 700 || o.Width >= 1200 ? h = "720p" : h = `${o.Width}x${o.Height}`, t.push(l`<span class="tech-chip"><ha-icon icon="mdi:video-outline"></ha-icon>${h}</span>`);
       }
       const a = (o.VideoRangeType || "").toUpperCase(), r = (o.VideoRange || "").toUpperCase(), n = (o.ColorTransfer || "").toLowerCase(), c = o.DvProfile;
       let p = e.dynamic_range || "";
@@ -7681,7 +8009,7 @@ let P = class extends ee {
     return Ee(this.hass, e.service);
   }
   _renderPrimaryPlayButton(e) {
-    if (this._playTargets.length === 0) return h;
+    if (this._playTargets.length === 0) return u;
     if (this._playTargets.length === 1) {
       const t = this._playTargets[0], i = t.type === "browser" || t.type === "play-browser", o = t.type === "client", s = t.icon || (t.type === "cast" ? "mdi:cast" : o ? "mdi:television-play" : i ? "mdi:monitor" : "mdi:play"), a = this._getTargetDisplayName(t);
       return l`
@@ -7719,7 +8047,7 @@ let P = class extends ee {
     return this._playTargets.length === 1 ? this._getTargetDisplayName(this._playTargets[0]) : "Play Episode";
   }
   _renderTargetPickerOverlay() {
-    if (!this._showTargetPicker || !this._pendingPlayItem) return h;
+    if (!this._showTargetPicker || !this._pendingPlayItem) return u;
     const e = this._pendingPlayItem.series_name ? `${this._pendingPlayItem.series_name} - ${this._pendingPlayItem.name}` : this._pendingPlayItem.name, t = this.hass?.locale?.language || this.hass?.language || "en", i = d(t, "modal.play_on") || "Play On", o = d(t, "modal.cancel") || "Cancel";
     return l`
             <div class="target-picker-overlay" @click=${this._closeTargetPicker}>
@@ -7736,7 +8064,7 @@ let P = class extends ee {
 
                     <div class="target-picker-list">
                         ${this._playTargets.map((s) => {
-      const a = s.type === "browser" || s.type === "play-browser", r = s.type === "client", n = s.icon || (s.type === "cast" ? "mdi:cast" : r ? "mdi:television-play" : a ? "mdi:monitor" : "mdi:play"), c = this._getTargetDisplayName(s), p = s.type === "cast" ? s.device || this._defaultCastDevice || "Chromecast" : r ? s.device || this._defaultClientDevice || "Jellyfin Client" : a ? "Web Browser" : s.service || "Script", u = s.show_entity_name !== !1 && s.show_entity !== !1 && this._showEntityName !== !1;
+      const a = s.type === "browser" || s.type === "play-browser", r = s.type === "client", n = s.icon || (s.type === "cast" ? "mdi:cast" : r ? "mdi:television-play" : a ? "mdi:monitor" : "mdi:play"), c = this._getTargetDisplayName(s), p = s.type === "cast" ? s.device || this._defaultCastDevice || "Chromecast" : r ? s.device || this._defaultClientDevice || "Jellyfin Client" : a ? "Web Browser" : s.service || "Script", h = s.show_entity_name !== !1 && s.show_entity !== !1 && this._showEntityName !== !1;
       return l`
                                 <button class="target-option-btn" @click=${() => this._executePlayTarget(s, this._pendingPlayItem)}>
                                     <div class="target-icon-badge">
@@ -7744,7 +8072,7 @@ let P = class extends ee {
                                     </div>
                                     <div class="target-info">
                                         <span class="target-name">${c}</span>
-                                        ${u && p ? l`<span class="target-detail">${p}</span>` : h}
+                                        ${h && p ? l`<span class="target-detail">${p}</span>` : u}
                                     </div>
                                     <ha-icon icon="mdi:chevron-right" class="target-chevron"></ha-icon>
                                 </button>
@@ -7832,80 +8160,104 @@ let P = class extends ee {
     return null;
   }
 };
-P.styles = ze`
+k.styles = ze`
         /* Styles handled in _getPortalStyles */
     `;
-I([
-  q({ attribute: !1 })
-], P.prototype, "hass", 2);
-I([
+$([
+  H({ attribute: !1 })
+], k.prototype, "hass", 2);
+$([
   f()
-], P.prototype, "_item", 2);
-I([
+], k.prototype, "_item", 2);
+$([
   f()
-], P.prototype, "_nextUpItem", 2);
-I([
+], k.prototype, "_nextUpItem", 2);
+$([
   f()
-], P.prototype, "_defaultCastDevice", 2);
-I([
+], k.prototype, "_defaultCastDevice", 2);
+$([
   f()
-], P.prototype, "_defaultClientDevice", 2);
-I([
+], k.prototype, "_defaultClientDevice", 2);
+$([
   f()
-], P.prototype, "_serverEntityId", 2);
-I([
+], k.prototype, "_serverEntityId", 2);
+$([
   f()
-], P.prototype, "_subtitleMode", 2);
-I([
+], k.prototype, "_subtitleMode", 2);
+$([
   f()
-], P.prototype, "_subtitleLanguage", 2);
-I([
+], k.prototype, "_subtitleLanguage", 2);
+$([
   f()
-], P.prototype, "_playTargets", 2);
-I([
+], k.prototype, "_playTargets", 2);
+$([
   f()
-], P.prototype, "_showTargetPicker", 2);
-I([
+], k.prototype, "_showTargetPicker", 2);
+$([
   f()
-], P.prototype, "_pendingPlayItem", 2);
-I([
+], k.prototype, "_pendingPlayItem", 2);
+$([
   f()
-], P.prototype, "_showEntityName", 2);
-I([
+], k.prototype, "_showEntityName", 2);
+$([
   f()
-], P.prototype, "_open", 2);
-I([
+], k.prototype, "_open", 2);
+$([
   f()
-], P.prototype, "_confirmDelete", 2);
-I([
+], k.prototype, "_confirmDelete", 2);
+$([
   f()
-], P.prototype, "_viewMode", 2);
-I([
+], k.prototype, "_viewMode", 2);
+$([
   f()
-], P.prototype, "_episodes", 2);
-I([
+], k.prototype, "_episodes", 2);
+$([
   f()
-], P.prototype, "_episodesLoading", 2);
-I([
+], k.prototype, "_episodesLoading", 2);
+$([
   f()
-], P.prototype, "_episodesError", 2);
-I([
+], k.prototype, "_episodesError", 2);
+$([
   f()
-], P.prototype, "_selectedSeason", 2);
-I([
+], k.prototype, "_selectedSeason", 2);
+$([
   f()
-], P.prototype, "_touchStartY", 2);
-I([
+], k.prototype, "_seerrUrl", 2);
+$([
   f()
-], P.prototype, "_currentTranslateY", 2);
-I([
+], k.prototype, "_seriesCatalog", 2);
+$([
   f()
-], P.prototype, "_isDragging", 2);
-P = I([
+], k.prototype, "_seriesCatalogLoading", 2);
+$([
+  f()
+], k.prototype, "_seriesCatalogError", 2);
+$([
+  f()
+], k.prototype, "_expandedCatalogSeasons", 2);
+$([
+  f()
+], k.prototype, "_downloadBusy", 2);
+$([
+  f()
+], k.prototype, "_downloadRequested", 2);
+$([
+  f()
+], k.prototype, "_downloadMessage", 2);
+$([
+  f()
+], k.prototype, "_touchStartY", 2);
+$([
+  f()
+], k.prototype, "_currentTranslateY", 2);
+$([
+  f()
+], k.prototype, "_isDragging", 2);
+k = $([
   xe("jellyha-item-details-modal")
-], P);
-var Oi = Object.defineProperty, Fi = Object.getOwnPropertyDescriptor, kt = (e, t, i, o) => {
-  for (var s = o > 1 ? void 0 : o ? Fi(t, i) : t, a = e.length - 1, r; a >= 0; a--)
+], k);
+var Oi = Object.defineProperty, Bi = Object.getOwnPropertyDescriptor, kt = (e, t, i, o) => {
+  for (var s = o > 1 ? void 0 : o ? Bi(t, i) : t, a = e.length - 1, r; a >= 0; a--)
     (r = e[a]) && (s = (o ? r(t, i, s) : r(s)) || s);
   return o && s && Oi(t, i, s), s;
 };
@@ -8061,7 +8413,7 @@ let Ye = class extends ee {
                 ></ha-switch>
                 <span>${d(a, "editor.use_series_image")}</span>
               </div>
-            ` : h}
+            ` : u}
           </div>
         ` : ""}
 
@@ -8244,7 +8596,7 @@ let Ye = class extends ee {
           ></ha-switch>
           <span>${d(a, "editor.show_runtime")}</span>
         </div>
-      ` : h}
+      ` : u}
 
     <div class="checkbox-row">
       <ha-switch
@@ -8945,7 +9297,7 @@ Ye.styles = ze`
     }
   `;
 kt([
-  q({ attribute: !1 })
+  H({ attribute: !1 })
 ], Ye.prototype, "hass", 2);
 kt([
   f()
@@ -8953,10 +9305,10 @@ kt([
 Ye = kt([
   xe("jellyha-library-editor")
 ], Ye);
-var Bi = Object.defineProperty, Hi = Object.getOwnPropertyDescriptor, ie = (e, t, i, o) => {
-  for (var s = o > 1 ? void 0 : o ? Hi(t, i) : t, a = e.length - 1, r; a >= 0; a--)
+var Fi = Object.defineProperty, qi = Object.getOwnPropertyDescriptor, ie = (e, t, i, o) => {
+  for (var s = o > 1 ? void 0 : o ? qi(t, i) : t, a = e.length - 1, r; a >= 0; a--)
     (r = e[a]) && (s = (o ? r(t, i, s) : r(s)) || s);
-  return o && s && Bi(t, i, s), s;
+  return o && s && Fi(t, i, s), s;
 };
 let J = class extends ee {
   constructor() {
@@ -8990,13 +9342,13 @@ let J = class extends ee {
     return !this.item || !this.config || !this.hass ? l`` : this.layout === "list" || this.layout === "featured-queue" ? this._renderListItem() : this.layout === "featured-hero" ? this._renderFeaturedHero() : this._renderMediaItem();
   }
   _renderListItem() {
-    const e = this.item, t = ot(e, this.config.new_badge_days || 0), i = this._getRating(e), o = this.config.show_media_type_badge !== !1, s = this._isItemPlaying(e), r = this.config.show_ratings !== !1 && this.config.show_rating !== !1 && i ? i.toFixed(1) : "", n = e.year ?? (e.date_added ? new Date(e.date_added).getFullYear() : void 0), c = this.config.show_year !== !1 && n ? String(n) : "", p = this._isRuntimeVisible() && e.runtime_minutes ? ve(e.runtime_minutes) : "", _ = this.config.show_date_added === !0 && e.date_added ? ht(e.date_added, this.hass?.locale?.language || this.hass?.language) : "", g = e.series_name && e.season != null && e.episode != null && !isNaN(Number(e.season)) && !isNaN(Number(e.episode)) ? `S${String(Number(e.season)).padStart(2, "0")}E${String(Number(e.episode)).padStart(2, "0")}` : e.type === "Movie" ? "MOVIE" : "SERIES", m = e.series_name ? "series" : e.type === "Movie" ? "movie" : "series", b = this.config.show_subtitle !== !1, v = e.type === "Episode" || !!(e.series_name && e.name !== e.series_name), y = b && v && e.series_name && e.name !== e.series_name ? e.series_name : "", w = this.config.show_genres !== !1 && e.genres && e.genres.length > 0 ? e.genres.slice(0, 3) : [], k = w.length > 0, $ = this.config.show_card_backdrop !== void 0 ? !!this.config.show_card_backdrop : this.config.featured_queue_backdrop !== !1, S = $ ? N(
+    const e = this.item, t = ot(e, this.config.new_badge_days || 0), i = this._getRating(e), o = this.config.show_media_type_badge !== !1, s = this._isItemPlaying(e), r = this.config.show_ratings !== !1 && this.config.show_rating !== !1 && i ? i.toFixed(1) : "", n = e.year ?? (e.date_added ? new Date(e.date_added).getFullYear() : void 0), c = this.config.show_year !== !1 && n ? String(n) : "", p = this._isRuntimeVisible() && e.runtime_minutes ? ve(e.runtime_minutes) : "", _ = this.config.show_date_added === !0 && e.date_added ? ht(e.date_added, this.hass?.locale?.language || this.hass?.language) : "", g = e.series_name && e.season != null && e.episode != null && !isNaN(Number(e.season)) && !isNaN(Number(e.episode)) ? `S${String(Number(e.season)).padStart(2, "0")}E${String(Number(e.episode)).padStart(2, "0")}` : e.type === "Movie" ? "MOVIE" : "SERIES", m = e.series_name ? "series" : e.type === "Movie" ? "movie" : "series", b = this.config.show_subtitle !== !1, v = e.type === "Episode" || !!(e.series_name && e.name !== e.series_name), y = b && v && e.series_name && e.name !== e.series_name ? e.series_name : "", w = this.config.show_genres !== !1 && e.genres && e.genres.length > 0 ? e.genres.slice(0, 3) : [], S = w.length > 0, C = this.config.show_card_backdrop !== void 0 ? !!this.config.show_card_backdrop : this.config.featured_queue_backdrop !== !1, P = C ? N(
       e.backdrop_url || (this.config.use_series_image && e.series_poster_url ? e.series_poster_url : e.poster_url),
       600
-    ) : "", x = this.config.show_watched_status !== !1, j = x && e.is_played, C = x && e.type === "Series" && (e.unplayed_count || 0) > 0, G = (o || (t || j || C)) && !s, U = this.layout === "featured-queue" && (this.isCramped !== void 0 ? this.isCramped : !!this.classList?.contains("cramped") || (this.config.columns || 1) >= 3);
+    ) : "", x = this.config.show_watched_status !== !1, I = x && e.is_played, j = x && e.type === "Series" && (e.unplayed_count || 0) > 0, G = (o || (t || I || j)) && !s, U = this.layout === "featured-queue" && (this.isCramped !== void 0 ? this.isCramped : !!this.classList?.contains("cramped") || (this.config.columns || 1) >= 3);
     return l`
       <div
-        class="media-item list-item ${this.layout === "featured-queue" ? "featured-queue-item" : ""} ${$ ? "has-backdrop" : ""} ${s ? "playing" : ""} ${this.config.show_title === !1 ? "no-title" : ""} ${y ? "has-subtitle" : ""} ${U ? "cramped" : ""}"
+        class="media-item list-item ${this.layout === "featured-queue" ? "featured-queue-item" : ""} ${C ? "has-backdrop" : ""} ${s ? "playing" : ""} ${this.config.show_title === !1 ? "no-title" : ""} ${y ? "has-subtitle" : ""} ${U ? "cramped" : ""}"
         tabindex="0"
         role="button"
         aria-label="${e.name}"
@@ -9010,11 +9362,11 @@ let J = class extends ee {
         @keydown="${this._handleKeydown}"
         @contextmenu="${this._handleContextMenu}"
       >
-        ${$ ? l`
+        ${C ? l`
           <div class="grid-card-backdrop-container">
             <img
               class="grid-card-backdrop"
-              src="${S}"
+              src="${P}"
               alt=""
               loading="lazy"
               decoding="async"
@@ -9023,7 +9375,7 @@ let J = class extends ee {
             />
             <div class="list-card-backdrop-scrim"></div>
           </div>
-        ` : h}
+        ` : u}
         <div class="list-poster-wrapper">
           <div class="poster-container" id="poster-${e.id}">
             <div class="poster-inner">
@@ -9047,7 +9399,7 @@ let J = class extends ee {
             <div class="censor-bar list-bar ${this.isNextUpHighlight ? "highlight" : ""}">
               <span>${e.series_name}</span>
             </div>
-              ` : h}
+              ` : u}
               
               ${this._renderNowPlayingOverlay(e)}
             </div>
@@ -9057,42 +9409,42 @@ let J = class extends ee {
         <div class="list-info">
           <div class="list-header">
             <div class="list-title-container">
-              ${this.config.show_title !== !1 ? l`<h3 class="list-title" title="${e.name}">${e.name}</h3>` : h}
-              ${y ? l`<p class="list-subtitle" title="${y}">${y}</p>` : h}
+              ${this.config.show_title !== !1 ? l`<h3 class="list-title" title="${e.name}">${e.name}</h3>` : u}
+              ${y ? l`<p class="list-subtitle" title="${y}">${y}</p>` : u}
             </div>
             ${G ? l`
               <div class="list-badges ${U ? "cramped-badges" : ""}">
-                ${o ? l`<span class="media-type-badge list-type-badge ${m}">${g}</span>` : h}
-                ${t ? l`<span class="new-badge inline-badge">${d(this.hass?.locale?.language || this.hass?.language, "new")}</span>` : h}
-                ${x && e.is_played ? l`<div class="status-badge watched inline-badge"><ha-icon icon="mdi:check-bold"></ha-icon></div>` : h}
-                ${x && e.type === "Series" && (e.unplayed_count || 0) > 0 ? l`<div class="status-badge unplayed inline-badge">${e.unplayed_count}</div>` : h}
+                ${o ? l`<span class="media-type-badge list-type-badge ${m}">${g}</span>` : u}
+                ${t ? l`<span class="new-badge inline-badge">${d(this.hass?.locale?.language || this.hass?.language, "new")}</span>` : u}
+                ${x && e.is_played ? l`<div class="status-badge watched inline-badge"><ha-icon icon="mdi:check-bold"></ha-icon></div>` : u}
+                ${x && e.type === "Series" && (e.unplayed_count || 0) > 0 ? l`<div class="status-badge unplayed inline-badge">${e.unplayed_count}</div>` : u}
               </div>
-            ` : h}
+            ` : u}
           </div>
           
           <div class="list-metadata">
             ${c || p || _ ? l`
               <div class="idle-meta-row list-meta-row">
-                ${c ? l`<span class="idle-meta-text meta-text meta-year list-year">${c}</span>` : h}
-                ${c && p ? l`<span class="idle-dot meta-dot">•</span>` : h}
-                ${p ? l`<span class="idle-meta-text meta-text meta-runtime list-runtime">${p}</span>` : h}
-                ${(c || p) && _ ? l`<span class="idle-dot meta-dot">•</span>` : h}
-                ${_ ? l`<span class="idle-meta-text meta-text meta-date-added list-date-added">${_}</span>` : h}
+                ${c ? l`<span class="idle-meta-text meta-text meta-year list-year">${c}</span>` : u}
+                ${c && p ? l`<span class="idle-dot meta-dot">•</span>` : u}
+                ${p ? l`<span class="idle-meta-text meta-text meta-runtime list-runtime">${p}</span>` : u}
+                ${(c || p) && _ ? l`<span class="idle-dot meta-dot">•</span>` : u}
+                ${_ ? l`<span class="idle-meta-text meta-text meta-date-added list-date-added">${_}</span>` : u}
               </div>
-            ` : h}
+            ` : u}
 
-            ${r || k ? l`
+            ${r || S ? l`
               <div class="idle-meta-row list-meta-pills">
                 ${r ? l`<span class="idle-rating-pill rating-pill list-rating">
                       <ha-icon icon="mdi:star"></ha-icon>
                       <span>${r}</span>
-                    </span>` : h}
+                    </span>` : u}
                 ${w.map((O) => l`<span class="genre-pill idle-genre-pill list-genre-pill" title="${O}"><span>${O}</span></span>`)}
               </div>
-            ` : h}
+            ` : u}
           </div>
           
-          ${this.config.show_description_on_hover !== !1 && (e.description || e.overview) && !U ? l`<p class="list-description" title="${e.description || e.overview}">${e.description || e.overview}</p>` : h}
+          ${this.config.show_description_on_hover !== !1 && (e.description || e.overview) && !U ? l`<p class="list-description" title="${e.description || e.overview}">${e.description || e.overview}</p>` : u}
 
         </div>
       </div>
@@ -9138,35 +9490,35 @@ let J = class extends ee {
             <span class="media-type-badge ${e.series_name ? "series" : e.type === "Movie" ? "movie" : "series"}">
               ${e.series_name && e.season !== void 0 && e.episode !== void 0 ? `S${String(e.season).padStart(2, "0")}E${String(e.episode).padStart(2, "0")}` : e.type === "Movie" ? "Movie" : "Series"}
             </span>
-          ` : h}
+          ` : u}
 
             ${e.series_name && !s ? l`
             <div class="censor-bar ${this.isNextUpHighlight ? "highlight" : ""}">
               <span>${e.series_name}</span>
             </div>
-              ` : h}
+              ` : u}
             
-            ${s ? h : this._renderStatusBadge(e, t)}
+            ${s ? u : this._renderStatusBadge(e, t)}
             
             ${this.config.show_ratings !== !1 && this.config.show_rating !== !1 && i && !s ? l`
                   <span class="rating rating-pill">
                     <ha-icon icon="mdi:star"></ha-icon>
                     <span>${i.toFixed(1)}</span>
                   </span>
-                ` : h}
+                ` : u}
             
             ${this._isRuntimeVisible() && e.runtime_minutes && !s ? l`
                   <span class="runtime genre-pill">
                     <span>${ve(e.runtime_minutes)}</span>
                   </span>
-                ` : h}
+                ` : u}
             
-            ${s ? h : l`
+            ${s ? u : l`
             <div class="hover-overlay">
-              ${this.config.show_year !== !1 && (e.year ?? (e.date_added ? new Date(e.date_added).getFullYear() : void 0)) ? l`<span class="overlay-year">${e.year ?? new Date(e.date_added).getFullYear()}</span>` : h}
-              ${this.config.show_title !== !1 ? l`<h3 class="overlay-title" title="${e.name}">${e.name}</h3>` : h}
-              ${this.config.show_genres !== !1 && e.genres && e.genres.length > 0 ? l`<span class="overlay-genres">${e.genres.slice(0, 3).join(", ")}</span>` : h}
-              ${this.config.show_description_on_hover !== !1 && e.description ? l`<p class="overlay-description" title="${e.description}">${e.description}</p>` : h}
+              ${this.config.show_year !== !1 && (e.year ?? (e.date_added ? new Date(e.date_added).getFullYear() : void 0)) ? l`<span class="overlay-year">${e.year ?? new Date(e.date_added).getFullYear()}</span>` : u}
+              ${this.config.show_title !== !1 ? l`<h3 class="overlay-title" title="${e.name}">${e.name}</h3>` : u}
+              ${this.config.show_genres !== !1 && e.genres && e.genres.length > 0 ? l`<span class="overlay-genres">${e.genres.slice(0, 3).join(", ")}</span>` : u}
+              ${this.config.show_description_on_hover !== !1 && e.description ? l`<p class="overlay-description" title="${e.description}">${e.description}</p>` : u}
             </div>`}
 
             ${this._renderNowPlayingOverlay(e)}
@@ -9175,11 +9527,11 @@ let J = class extends ee {
         
         ${c ? l`
           <div class="media-info-below">
-            ${n ? l`<p class="media-title" title="${e.name}">${e.name}</p>` : h}
-            ${a ? l`<p class="media-year">${e.year ?? new Date(e.date_added).getFullYear()}</p>` : h}
-            ${r ? l`<p class="media-date-added">${ht(e.date_added, this.hass?.locale?.language || this.hass?.language)}</p>` : h}
+            ${n ? l`<p class="media-title" title="${e.name}">${e.name}</p>` : u}
+            ${a ? l`<p class="media-year">${e.year ?? new Date(e.date_added).getFullYear()}</p>` : u}
+            ${r ? l`<p class="media-date-added">${ht(e.date_added, this.hass?.locale?.language || this.hass?.language)}</p>` : u}
           </div>
-        ` : h}
+        ` : u}
       </div>
     `;
   }
@@ -9197,10 +9549,10 @@ let J = class extends ee {
   }
   _renderNowPlayingOverlay(e) {
     if (!this.config.show_now_playing)
-      return h;
+      return u;
     const t = Ut(e, this.hass, this.config);
     if (!t)
-      return h;
+      return u;
     const i = t.state === "paused", s = 2 * Math.PI * 18, a = s * (1 - this._longPressProgress);
     return l`
       <div 
@@ -9276,7 +9628,7 @@ let J = class extends ee {
                   stroke-linecap="round"
                   transform="rotate(-90 20 20)" />
               </svg>
-            ` : h}
+            ` : u}
           </div>
         </div>
       </div>
@@ -9444,19 +9796,19 @@ let J = class extends ee {
       const w = new Date(e.date_added);
       isNaN(w.getFullYear()) || (n = w.getFullYear());
     }
-    const c = i && n ? String(n) : "", p = o && e.runtime_minutes ? ve(e.runtime_minutes) : "", u = s && e.date_added ? ht(e.date_added, this.hass?.locale?.language || this.hass?.language) : "", _ = a && t && !this._isItemPlaying(e) ? t.toFixed(1) : "", g = r && e.genres && e.genres.length > 0 ? e.genres.slice(0, 2) : [], m = g.length > 0, b = [];
-    c && b.push({ text: c, className: "meta-year" }), p && b.push({ text: p, className: "meta-runtime" }), u && b.push({ text: u, className: "meta-date-added" });
+    const c = i && n ? String(n) : "", p = o && e.runtime_minutes ? ve(e.runtime_minutes) : "", h = s && e.date_added ? ht(e.date_added, this.hass?.locale?.language || this.hass?.language) : "", _ = a && t && !this._isItemPlaying(e) ? t.toFixed(1) : "", g = r && e.genres && e.genres.length > 0 ? e.genres.slice(0, 2) : [], m = g.length > 0, b = [];
+    c && b.push({ text: c, className: "meta-year" }), p && b.push({ text: p, className: "meta-runtime" }), h && b.push({ text: h, className: "meta-date-added" });
     const v = b.length > 0, y = !!_ || m;
-    return !v && !y ? h : l`
+    return !v && !y ? u : l`
       <div class="meta-line">
         ${v ? l`
           <div class="meta-text-row">
-            ${b.map((w, k) => l`
-              ${k > 0 ? l`<span class="idle-dot meta-dot">•</span>` : h}
+            ${b.map((w, S) => l`
+              ${S > 0 ? l`<span class="idle-dot meta-dot">•</span>` : u}
               <span class="idle-meta-text meta-text ${w.className}">${w.text}</span>
             `)}
           </div>
-        ` : h}
+        ` : u}
         ${y ? l`
           <div class="meta-pills-row">
             ${_ ? l`
@@ -9464,10 +9816,10 @@ let J = class extends ee {
                 <ha-icon icon="mdi:star"></ha-icon>
                 <span>${_}</span>
               </span>
-            ` : h}
-            ${m ? g.map((w) => l`<span class="genre-pill idle-genre-pill">${w}</span>`) : h}
+            ` : u}
+            ${m ? g.map((w) => l`<span class="genre-pill idle-genre-pill">${w}</span>`) : u}
           </div>
-        ` : h}
+        ` : u}
       </div>
     `;
   }
@@ -9515,20 +9867,20 @@ let J = class extends ee {
                 <span class="media-type-badge ${e.series_name ? "series" : e.type === "Movie" ? "movie" : "series"}">
                   ${e.series_name && e.season != null && e.episode != null && !isNaN(Number(e.season)) && !isNaN(Number(e.episode)) ? `S${String(Number(e.season)).padStart(2, "0")}E${String(Number(e.episode)).padStart(2, "0")}` : e.type === "Movie" ? "MOVIE" : "SERIES"}
                 </span>
-              ` : h}
+              ` : u}
 
-            ${s ? h : this._renderStatusBadge(e, t)}
+            ${s ? u : this._renderStatusBadge(e, t)}
 
             ${e.series_name && !s ? l`
                 <div class="censor-bar ${this.isNextUpHighlight ? "highlight" : ""}">
                   <span>${e.series_name}</span>
                 </div>
-              ` : h}
+              ` : u}
 
-            ${s ? h : l`
+            ${s ? u : l`
                 <div class="featured-hero-scrim">
-                  ${a ? l`<h3 class="featured-hero-title" title="${e.name}">${e.name}</h3>` : h}
-                  ${a && e.series_name && e.name !== e.series_name ? l`<p class="featured-hero-subtitle" title="${e.series_name}">${e.series_name}</p>` : h}
+                  ${a ? l`<h3 class="featured-hero-title" title="${e.name}">${e.name}</h3>` : u}
+                  ${a && e.series_name && e.name !== e.series_name ? l`<p class="featured-hero-subtitle" title="${e.series_name}">${e.series_name}</p>` : u}
                   ${this._renderMetaLine(e, i)}
                 </div>
               `}
@@ -9545,22 +9897,22 @@ let J = class extends ee {
 };
 J.styles = Kt;
 ie([
-  q({ attribute: !1 })
+  H({ attribute: !1 })
 ], J.prototype, "hass", 2);
 ie([
-  q({ attribute: !1 })
+  H({ attribute: !1 })
 ], J.prototype, "config", 2);
 ie([
-  q({ attribute: !1 })
+  H({ attribute: !1 })
 ], J.prototype, "item", 2);
 ie([
-  q({ type: String })
+  H({ type: String })
 ], J.prototype, "layout", 2);
 ie([
-  q({ type: Boolean })
+  H({ type: Boolean })
 ], J.prototype, "isNextUpHighlight", 2);
 ie([
-  q({ type: Boolean })
+  H({ type: Boolean })
 ], J.prototype, "isCramped", 2);
 ie([
   f()
@@ -9574,12 +9926,12 @@ ie([
 J = ie([
   xe("jellyha-media-item")
 ], J);
-var qi = Object.defineProperty, Wi = Object.getOwnPropertyDescriptor, M = (e, t, i, o) => {
+var Hi = Object.defineProperty, Wi = Object.getOwnPropertyDescriptor, M = (e, t, i, o) => {
   for (var s = o > 1 ? void 0 : o ? Wi(t, i) : t, a = e.length - 1, r; a >= 0; a--)
     (r = e[a]) && (s = (o ? r(t, i, s) : r(s)) || s);
-  return o && s && qi(t, i, s), s;
+  return o && s && Hi(t, i, s), s;
 };
-const Vi = "1.7.5.3";
+const Vi = "1.7.5.5";
 console.info(
   `%c JELLYHA-LIBRARY-CARD %c v${Vi} `,
   "color: white; background: #00a4dc; font-weight: bold;",
@@ -9591,7 +9943,7 @@ typeof window < "u" && (window.customCards = window.customCards || [], window.cu
   description: "Display media from Jellyfin",
   preview: !0
 }));
-const Ft = {
+const Bt = {
   title: "",
   layout: "carousel",
   media_type: "both",
@@ -9639,7 +9991,7 @@ function Pe(e, t, i) {
   });
   e.dispatchEvent(o);
 }
-let T = class extends ee {
+let A = class extends ee {
   constructor() {
     super(), this._currentPage = 0, this._itemsPerPage = 5, this._pressStartTime = 0, this._isHoldActive = !1, this._rewindActive = !1, this._items = [], this._lastUpdate = "", this._searchQuery = "", this._searchGenre = "", this._touchStartX = 0, this._touchStartY = 0, this._isOverscrolling = !1, this._elasticAnchorX = 0, this._itemTouchStartX = 0, this._itemTouchStartY = 0, this._containerWidth = 0, this.LIST_ITEM_MIN_WIDTH = 300, this.FEATURED_QUEUE_ITEM_MIN_WIDTH = 200, this._effectiveListColumns = 1, this._isFeaturedCramped = !1, this._isSwiping = !1, this._autoSwipePaused = !1, this._lastFrameTime = 0, this._scrollAccumulator = 0, this._scrollProgress = 0, this._hasScrollableContent = !1, this.SCROLL_INDICATOR_DOTS = 5, this._handleMouseEnter = () => {
       this._autoSwipePaused = !0;
@@ -9764,9 +10116,9 @@ let T = class extends ee {
     if (Math.abs(t) > Math.abs(i)) {
       const o = this.shadowRoot?.querySelector(".carousel, .grid-wrapper, .list-wrapper, .featured-wrapper");
       if (o && Math.abs(t) > 0) {
-        const { scrollLeft: s, scrollWidth: a, clientWidth: r } = o, n = a - r, c = s <= 5, p = s >= n - 5, u = this._config.show_pagination !== !1;
+        const { scrollLeft: s, scrollWidth: a, clientWidth: r } = o, n = a - r, c = s <= 5, p = s >= n - 5, h = this._config.show_pagination !== !1;
         let _ = !1;
-        if (u) {
+        if (h) {
           const g = this._getTotalPages();
           c && t > 0 && this._currentPage === 0 && (_ = !0), p && t < 0 && this._currentPage >= g - 1 && (_ = !0);
         } else
@@ -9816,9 +10168,9 @@ let T = class extends ee {
     if (Math.abs(t) > Math.abs(i)) {
       const o = this.shadowRoot?.querySelector(".carousel, .grid-wrapper, .list-wrapper, .featured-wrapper");
       if (o && Math.abs(t) > 0) {
-        const { scrollLeft: s, scrollWidth: a, clientWidth: r } = o, n = a - r, c = s <= 5, p = s >= n - 5, u = this._config.show_pagination !== !1;
+        const { scrollLeft: s, scrollWidth: a, clientWidth: r } = o, n = a - r, c = s <= 5, p = s >= n - 5, h = this._config.show_pagination !== !1;
         let _ = !1;
-        if (u) {
+        if (h) {
           const g = this._getTotalPages();
           c && t > 0 && this._currentPage === 0 && (_ = !0), p && t < 0 && this._currentPage >= g - 1 && (_ = !0);
         } else
@@ -9939,7 +10291,7 @@ let T = class extends ee {
   setConfig(e) {
     if (!e.entity)
       throw new Error("Please define an entity");
-    this._config = { ...Ft, ...e }, this._containerWidth > 0 ? this._updateEffectiveListColumns(this._containerWidth) : this._effectiveListColumns = this._config.columns || 1;
+    this._config = { ...Bt, ...e }, this._containerWidth > 0 ? this._updateEffectiveListColumns(this._containerWidth) : this._effectiveListColumns = this._config.columns || 1;
   }
   /**
    * Return the card editor element
@@ -9953,7 +10305,7 @@ let T = class extends ee {
   static getStubConfig() {
     return {
       entity: "sensor.jellyha_library",
-      ...Ft
+      ...Bt
     };
   }
   /**
@@ -10085,8 +10437,8 @@ let T = class extends ee {
                   <div class="card-header">
                     <h2>${this._config.title}</h2>
                   </div>
-                ` : h}
-            ${this._config.show_search ? this._renderSearchBar(t) : h}
+                ` : u}
+            ${this._config.show_search ? this._renderSearchBar(t) : u}
             <div class="card-content">
               ${t.length === 0 ? this._renderEmpty() : this._renderLayout(t)}
             </div>
@@ -10187,21 +10539,21 @@ let T = class extends ee {
       >
         <div 
           class="carousel ${t ? "paginated" : "scrollable"}"
-          @scroll="${t ? h : this._handleScroll}"
+          @scroll="${t ? u : this._handleScroll}"
         >
-          ${p.map((u) => l`
+          ${p.map((h) => l`
             <jellyha-media-item
                 .hass=${this.hass}
                 .config=${this._config}
-                .item=${u}
+                .item=${h}
                 .layout=${"grid"}
-                .isNextUpHighlight=${this._config.media_type === "next_up" && u.id === this._mostRecentNextUpItemId}
+                .isNextUpHighlight=${this._config.media_type === "next_up" && h.id === this._mostRecentNextUpItemId}
                 @jellyha-action=${this._handleItemAction}
             ></jellyha-media-item>
           `)}
         </div>
-        ${t && r > 1 ? this._renderPagination(r) : h}
-        ${t ? h : this._renderScrollIndicator()}
+        ${t && r > 1 ? this._renderPagination(r) : u}
+        ${t ? u : this._renderScrollIndicator()}
       </div>
     `;
   }
@@ -10209,7 +10561,7 @@ let T = class extends ee {
    * Render list with optional pagination
    */
   _renderList(e, t) {
-    const i = this._config.items_per_page || this._itemsPerPage, o = this._config.max_pages, s = o ? Number(o) : 0, a = s > 0 ? s : 1 / 0, r = Math.min(Math.ceil(e.length / i), a), n = this._currentPage * i, c = !t && (this._config.auto_swipe_interval || 0) > 0, p = t ? e.slice(n, n + i) : c ? [...e, ...e] : e, u = this._effectiveListColumns, _ = u === 1;
+    const i = this._config.items_per_page || this._itemsPerPage, o = this._config.max_pages, s = o ? Number(o) : 0, a = s > 0 ? s : 1 / 0, r = Math.min(Math.ceil(e.length / i), a), n = this._currentPage * i, c = !t && (this._config.auto_swipe_interval || 0) > 0, p = t ? e.slice(n, n + i) : c ? [...e, ...e] : e, h = this._effectiveListColumns, _ = h === 1;
     return l`
       <div 
         class="list-wrapper"
@@ -10222,7 +10574,7 @@ let T = class extends ee {
       >
         <div 
           class="list ${t ? "paginated" : ""} ${_ ? "single-column" : ""}"
-          style="--jf-list-columns: ${u}"
+          style="--jf-list-columns: ${h}"
         >
           ${p.map((g) => l`
             <jellyha-media-item
@@ -10235,7 +10587,7 @@ let T = class extends ee {
             ></jellyha-media-item>
           `)}
         </div>
-        ${t && r > 1 ? this._renderPagination(r) : h}
+        ${t && r > 1 ? this._renderPagination(r) : u}
       </div>
     `;
   }
@@ -10243,7 +10595,7 @@ let T = class extends ee {
    * Render grid with optional pagination
    */
   _renderGrid(e, t) {
-    const i = this._config.items_per_page || this._itemsPerPage, o = this._config.max_pages, s = o ? Number(o) : 0, a = s > 0 ? s : 1 / 0, r = Math.min(Math.ceil(e.length / i), a), n = this._currentPage * i, c = !t && (this._config.auto_swipe_interval || 0) > 0, p = t ? e.slice(n, n + i) : c ? [...e, ...e] : e, u = this._config.columns || 1, _ = u === 1, g = !t && (this._config.auto_swipe_interval || 0) > 0, m = this._currentPage === 0 ? (this._config.pending_items || []).filter((b) => {
+    const i = this._config.items_per_page || this._itemsPerPage, o = this._config.max_pages, s = o ? Number(o) : 0, a = s > 0 ? s : 1 / 0, r = Math.min(Math.ceil(e.length / i), a), n = this._currentPage * i, c = !t && (this._config.auto_swipe_interval || 0) > 0, p = t ? e.slice(n, n + i) : c ? [...e, ...e] : e, h = this._config.columns || 1, _ = h === 1, g = !t && (this._config.auto_swipe_interval || 0) > 0, m = this._currentPage === 0 ? (this._config.pending_items || []).filter((b) => {
       const v = String(b.name || "").toLowerCase();
       return v && !this._items.some((y) => String(y.name || "").toLowerCase() === v);
     }).slice(0, 5) : [];
@@ -10257,11 +10609,11 @@ let T = class extends ee {
           @pointerdown="${this._handlePointerDown}"
           @pointermove="${this._handlePointerMove}"
           @pointerup="${this._handlePointerUp}"
-          @scroll="${t ? h : this._handleScroll}"
+          @scroll="${t ? u : this._handleScroll}"
         >
           <div
             class="grid ${t ? "paginated" : ""} ${_ ? "auto-columns" : ""} ${g ? "horizontal" : ""}"
-            style="--jf-columns: ${u}; --jf-grid-rows: ${u}"
+            style="--jf-columns: ${h}; --jf-grid-rows: ${h}"
           >
             ${m.map((b) => this._renderPendingItem(b))}
             ${p.map((b) => l`
@@ -10276,8 +10628,8 @@ let T = class extends ee {
             `)}
           </div>
         </div>
-        ${t && r > 1 ? this._renderPagination(r) : h}
-        ${t ? h : this._renderScrollIndicator()}
+        ${t && r > 1 ? this._renderPagination(r) : u}
+        ${t ? u : this._renderScrollIndicator()}
       </div>
     `;
   }
@@ -10326,7 +10678,7 @@ let T = class extends ee {
     `;
   }
   _renderFeatured(e, t) {
-    const i = this._getEffectiveItemsPerPage(), o = this._config.max_pages, s = o ? Number(o) : 0, a = s > 0 ? s : 1 / 0, r = Math.min(Math.ceil(e.length / i), a), n = this._currentPage * i, c = e.slice(n, n + i), [p, ...u] = c;
+    const i = this._getEffectiveItemsPerPage(), o = this._config.max_pages, s = o ? Number(o) : 0, a = s > 0 ? s : 1 / 0, r = Math.min(Math.ceil(e.length / i), a), n = this._currentPage * i, c = e.slice(n, n + i), [p, ...h] = c;
     if (!p) return l``;
     const _ = Math.max(1, this._config.columns || 1), g = Math.max(2, Math.min(3, this._config.rows || 3)), m = _ >= 3 || this._isFeaturedCramped;
     return l`
@@ -10339,7 +10691,7 @@ let T = class extends ee {
         @pointermove="${this._handlePointerMove}"
         @pointerup="${this._handlePointerUp}"
       >
-        <div class="featured ${u.length === 0 ? "single" : ""} ${_ > 1 ? "multi-column" : ""} rows-${g}">
+        <div class="featured ${h.length === 0 ? "single" : ""} ${_ > 1 ? "multi-column" : ""} rows-${g}">
             <div class="featured-hero-container">
               <jellyha-media-item
                 class="featured-main"
@@ -10351,12 +10703,12 @@ let T = class extends ee {
                 @jellyha-action=${this._handleItemAction}
               ></jellyha-media-item>
             </div>
-            ${u.length > 0 ? l`
+            ${h.length > 0 ? l`
               <div 
                 class="featured-side columns-${_} rows-${g} ${m ? "cramped" : ""}"
                 style="--jf-featured-columns: ${_}; --jf-featured-rows: ${g};"
               >
-                ${u.map((b) => l`
+                ${h.map((b) => l`
                   <jellyha-media-item
                     class="${m ? "cramped" : ""}"
                     .hass=${this.hass}
@@ -10369,9 +10721,9 @@ let T = class extends ee {
                   ></jellyha-media-item>
                 `)}
               </div>
-            ` : h}
+            ` : u}
           </div>
-        ${t && r > 1 ? this._renderPagination(r) : h}
+        ${t && r > 1 ? this._renderPagination(r) : u}
       </div>
     `;
   }
@@ -10413,9 +10765,9 @@ let T = class extends ee {
           style="transform: translateX(${n}px); width: ${e * 16}px"
         >
           ${Array.from({ length: e }, (c, p) => {
-      const u = Math.abs(p - this._currentPage);
+      const h = Math.abs(p - this._currentPage);
       let _ = "smart-dot";
-      return p === this._currentPage ? _ += " active" : u > 2 ? _ += " hidden" : u === 2 && (_ += " small"), l`
+      return p === this._currentPage ? _ += " active" : h > 2 ? _ += " hidden" : h === 2 && (_ += " small"), l`
               <button
                 type="button"
                 class="${_}"
@@ -10702,6 +11054,7 @@ let T = class extends ee {
         subtitleMode: t,
         subtitleLanguage: i,
         playTargets: this._getEffectivePlayTargets(),
+        seerrUrl: this._config.seerr_url,
         showEntityName: this._config.show_entity_name ?? this._config.show_modal_entity_name
       });
     }
@@ -10737,7 +11090,7 @@ let T = class extends ee {
     }}">
               <ha-icon icon="mdi:close"></ha-icon>
             </button>
-          ` : h}
+          ` : u}
         </div>
         
         <div class="search-select-wrapper">
@@ -10753,67 +11106,67 @@ let T = class extends ee {
     `;
   }
 };
-T.styles = Kt;
+A.styles = Kt;
 M([
-  q({ attribute: !1 })
-], T.prototype, "hass", 2);
-M([
-  f()
-], T.prototype, "_config", 2);
+  H({ attribute: !1 })
+], A.prototype, "hass", 2);
 M([
   f()
-], T.prototype, "_currentPage", 2);
+], A.prototype, "_config", 2);
 M([
   f()
-], T.prototype, "_itemsPerPage", 2);
+], A.prototype, "_currentPage", 2);
 M([
   f()
-], T.prototype, "_pressStartTime", 2);
+], A.prototype, "_itemsPerPage", 2);
 M([
   f()
-], T.prototype, "_holdTimer", 2);
+], A.prototype, "_pressStartTime", 2);
 M([
   f()
-], T.prototype, "_isHoldActive", 2);
+], A.prototype, "_holdTimer", 2);
 M([
   f()
-], T.prototype, "_rewindActive", 2);
+], A.prototype, "_isHoldActive", 2);
 M([
   f()
-], T.prototype, "_items", 2);
+], A.prototype, "_rewindActive", 2);
 M([
   f()
-], T.prototype, "_error", 2);
+], A.prototype, "_items", 2);
 M([
   f()
-], T.prototype, "_lastUpdate", 2);
+], A.prototype, "_error", 2);
 M([
   f()
-], T.prototype, "_mostRecentNextUpItemId", 2);
+], A.prototype, "_lastUpdate", 2);
 M([
   f()
-], T.prototype, "_searchQuery", 2);
+], A.prototype, "_mostRecentNextUpItemId", 2);
 M([
   f()
-], T.prototype, "_searchGenre", 2);
+], A.prototype, "_searchQuery", 2);
+M([
+  f()
+], A.prototype, "_searchGenre", 2);
 M([
   $i("jellyha-item-details-modal")
-], T.prototype, "_modal", 2);
+], A.prototype, "_modal", 2);
 M([
   f()
-], T.prototype, "_effectiveListColumns", 2);
+], A.prototype, "_effectiveListColumns", 2);
 M([
   f()
-], T.prototype, "_isFeaturedCramped", 2);
+], A.prototype, "_isFeaturedCramped", 2);
 M([
   f()
-], T.prototype, "_scrollProgress", 2);
+], A.prototype, "_scrollProgress", 2);
 M([
   f()
-], T.prototype, "_hasScrollableContent", 2);
-T = M([
+], A.prototype, "_hasScrollableContent", 2);
+A = M([
   xe("jellyha-library-card")
-], T);
+], A);
 var Ji = Object.defineProperty, Yi = Object.getOwnPropertyDescriptor, $t = (e, t, i, o) => {
   for (var s = o > 1 ? void 0 : o ? Yi(t, i) : t, a = e.length - 1, r; a >= 0; a--)
     (r = e[a]) && (s = (o ? r(t, i, s) : r(s)) || s);
@@ -10835,8 +11188,8 @@ let Ge = class extends ee {
     if (!this.hass || !this._config)
       return l``;
     const e = (n, c) => {
-      const p = String(this.hass.states[n]?.attributes?.friendly_name || n), u = String(this.hass.states[c]?.attributes?.friendly_name || c);
-      return p.localeCompare(u);
+      const p = String(this.hass.states[n]?.attributes?.friendly_name || n), h = String(this.hass.states[c]?.attributes?.friendly_name || c);
+      return p.localeCompare(h);
     }, t = Object.keys(this.hass.states).filter(
       (n) => n.startsWith("media_player.jellyha_") && !n.includes("_library_browser") && !n.endsWith("_browser")
     ).sort(e), i = Object.keys(this.hass.states).filter(
@@ -11534,7 +11887,7 @@ Ge.styles = ze`
     }
   `;
 $t([
-  q({ attribute: !1 })
+  H({ attribute: !1 })
 ], Ge.prototype, "hass", 2);
 $t([
   f()
@@ -11553,7 +11906,7 @@ typeof window < "u" && (window.customCards = window.customCards || [], window.cu
   description: "Display currently playing media from Jellyfin",
   preview: !0
 }));
-let A = class extends ee {
+let T = class extends ee {
   constructor() {
     super(...arguments), this._rewindActive = !1, this._overflowState = 0, this._dominantColor = "var(--primary-color)", this._longPressProgress = 0, this._stopPulse = !1, this._isDragging = !1, this._dragPercentage = 0, this._optimisticSeekPercent = null, this._isSeeking = !1, this._powerActivating = !1, this._isVolumeDragging = !1, this._dragVolumePercent = null, this._optimisticVolume = {}, this._idleItems = [], this._currentIdleIndex = 0, this._prevIdleIndex = null, this._idleFadeOut = !1, this._lastHapticVolumeTick = 0, this._fetchingIdleItems = !1, this._longPressRaf = null, this._longPressConsumed = !1, this._layoutCheckRaf = null, this._optimisticFavorites = {}, this._resolvedImages = {}, this._fetchingImageKey = null, this._resolvedMetadata = {}, this._fetchingMetadataId = null, this._phrases = [];
   }
@@ -11647,27 +12000,27 @@ let A = class extends ee {
     this._stopIdleTimer();
     const r = !s && this._isSeeking && this._lastActiveStateObj ? this._lastActiveStateObj : t, n = r.attributes, c = this._extractItemId(r);
     c && !this._resolvedMetadata[c] && (!n.community_rating || !n.year || !n.genres || !n.media_type) && this._fetchMissingMetadata(c);
-    const p = c ? this._resolvedMetadata[c] : null, u = this._getDurationSeconds(r), _ = this._getCurrentPositionSeconds(r);
+    const p = c ? this._resolvedMetadata[c] : null, h = this._getDurationSeconds(r), _ = this._getCurrentPositionSeconds(r);
     let g = 0;
-    this._optimisticSeekPercent !== null ? g = this._optimisticSeekPercent : u > 0 ? g = Math.min(100, Math.max(0, _ / u * 100)) : typeof n.progress_percent == "number" && (g = n.progress_percent);
-    const m = this._isDragging && u > 0 ? this._dragPercentage / 100 * u : this._optimisticSeekPercent !== null && u > 0 ? this._optimisticSeekPercent / 100 * u : _, b = this._isDragging ? this._dragPercentage : g, v = this._isDragging ? 8 : 6, y = `calc(${b}% + (50 - ${b}) * ${v * 2 / 100}px)`, { seriesImageUrl: w, episodeImageUrl: k } = this._resolveImages(r, p), $ = this._config.use_series_image && w ? w : k || n.image_url || r.attributes.entity_picture || p?.poster_url, S = $, x = c || n.item_id || r.attributes.media_content_id, j = n.backdrop_url || p?.backdrop_url || $, C = j ? N(j, 640) : void 0, L = `${x}_${this._config.use_series_image ? "series" : "item"}`;
-    (L !== this._cachedItemId || C && C !== this._cachedBackdropUrl) && (this._cachedItemId = L, this._cachedBackdropUrl = C);
-    const G = `${L}_${S || ""}`;
-    G !== this._cachedColorItemId && S && (this._cachedColorItemId = G, this._extractDominantColor(N(S, 80)));
+    this._optimisticSeekPercent !== null ? g = this._optimisticSeekPercent : h > 0 ? g = Math.min(100, Math.max(0, _ / h * 100)) : typeof n.progress_percent == "number" && (g = n.progress_percent);
+    const m = this._isDragging && h > 0 ? this._dragPercentage / 100 * h : this._optimisticSeekPercent !== null && h > 0 ? this._optimisticSeekPercent / 100 * h : _, b = this._isDragging ? this._dragPercentage : g, v = this._isDragging ? 8 : 6, y = `calc(${b}% + (50 - ${b}) * ${v * 2 / 100}px)`, { seriesImageUrl: w, episodeImageUrl: S } = this._resolveImages(r, p), C = this._config.use_series_image && w ? w : S || n.image_url || r.attributes.entity_picture || p?.poster_url, P = C, x = c || n.item_id || r.attributes.media_content_id, I = n.backdrop_url || p?.backdrop_url || C, j = I ? N(I, 640) : void 0, L = `${x}_${this._config.use_series_image ? "series" : "item"}`;
+    (L !== this._cachedItemId || j && j !== this._cachedBackdropUrl) && (this._cachedItemId = L, this._cachedBackdropUrl = j);
+    const G = `${L}_${P || ""}`;
+    G !== this._cachedColorItemId && P && (this._cachedColorItemId = G, this._extractDominantColor(N(P, 80)));
     const U = this._cachedBackdropUrl, O = this._config.show_background !== !1 && U, R = i ? r.state === "paused" : n.is_paused, E = (n.media_type || (p?.type ? p.type : null) || r.attributes.media_content_type || "").toLowerCase(), z = E === "audio" || E === "music";
     let ae = n.title || r.attributes.media_title || p?.name || "";
-    const K = this._config.show_subtitle !== !1, Z = n.series_title || r.attributes.media_series_title || p?.series_name || "", Q = K && (n.artist_name || r.attributes.media_artist || Z || p?.artist_name) || "", F = n.year ?? p?.year, pe = this._config.show_year !== !1 && F ? String(F) : "", Me = n.season !== void 0 && n.season !== null ? n.season : r.attributes.media_season !== void 0 && r.attributes.media_season !== null ? r.attributes.media_season : p?.season, De = n.episode !== void 0 && n.episode !== null ? n.episode : r.attributes.media_episode !== void 0 && r.attributes.media_episode !== null ? r.attributes.media_episode : p?.episode, he = Number(Me), Le = Number(De), ke = Me != null && De != null && !isNaN(he) && !isNaN(Le) && he >= 0 && Le >= 0, oe = (E === "episode" || E === "tvshow") && ke ? `S${String(he).padStart(2, "0")}E${String(Le).padStart(2, "0")}` : E === "movie" ? "MOVIE" : E === "episode" ? "EPISODE" : E === "tvshow" ? "SERIES" : n.media_type || p?.type || "", ne = this._config.badge_style || this._config.media_type_badge_style || "poster", Ne = this._config.show_media_type_badge !== !1 && !!oe, se = ne === "inline", W = Ne && se && !!oe;
+    const K = this._config.show_subtitle !== !1, Z = n.series_title || r.attributes.media_series_title || p?.series_name || "", Q = K && (n.artist_name || r.attributes.media_artist || Z || p?.artist_name) || "", B = n.year ?? p?.year, pe = this._config.show_year !== !1 && B ? String(B) : "", Me = n.season !== void 0 && n.season !== null ? n.season : r.attributes.media_season !== void 0 && r.attributes.media_season !== null ? r.attributes.media_season : p?.season, De = n.episode !== void 0 && n.episode !== null ? n.episode : r.attributes.media_episode !== void 0 && r.attributes.media_episode !== null ? r.attributes.media_episode : p?.episode, he = Number(Me), Le = Number(De), ke = Me != null && De != null && !isNaN(he) && !isNaN(Le) && he >= 0 && Le >= 0, oe = (E === "episode" || E === "tvshow") && ke ? `S${String(he).padStart(2, "0")}E${String(Le).padStart(2, "0")}` : E === "movie" ? "MOVIE" : E === "episode" ? "EPISODE" : E === "tvshow" ? "SERIES" : n.media_type || p?.type || "", ne = this._config.badge_style || this._config.media_type_badge_style || "poster", Ne = this._config.show_media_type_badge !== !1 && !!oe, se = ne === "inline", W = Ne && se && !!oe;
     let $e = !1, Re = !1;
     Ne && ne !== "none" && (ne === "poster" ? $e = !0 : ne === "header" && (Re = !0));
-    const Ke = n.runtime_minutes || (u > 0 ? Math.round(u / 60) : p?.runtime_minutes || 0), Ze = E === "audio" && u > 0 ? `${Math.floor(u / 60)}m ${Math.floor(u % 60)}s` : Ke > 0 ? ve(Ke) : "", ue = this._config.show_runtime !== !1 && Ze ? Ze : "", Ue = n.community_rating ?? p?.community_rating ?? p?.rating, Oe = Number(Ue), ct = !isNaN(Oe) && Oe > 0 ? Oe.toFixed(1) : Ue ? String(Ue) : "", _e = this._config.show_ratings !== !1 && ct ? ct : "", Fe = n.genres && n.genres.length > 0 ? n.genres : p?.genres || [], ge = this._config.show_genres !== !1 && Fe?.length ? Fe.slice(0, 3) : [];
+    const Ke = n.runtime_minutes || (h > 0 ? Math.round(h / 60) : p?.runtime_minutes || 0), Ze = E === "audio" && h > 0 ? `${Math.floor(h / 60)}m ${Math.floor(h % 60)}s` : Ke > 0 ? ve(Ke) : "", ue = this._config.show_runtime !== !1 && Ze ? Ze : "", Ue = n.community_rating ?? p?.community_rating ?? p?.rating, Oe = Number(Ue), ct = !isNaN(Oe) && Oe > 0 ? Oe.toFixed(1) : Ue ? String(Ue) : "", _e = this._config.show_ratings !== !1 && ct ? ct : "", Be = n.genres && n.genres.length > 0 ? n.genres : p?.genres || [], ge = this._config.show_genres !== !1 && Be?.length ? Be.slice(0, 3) : [];
     se ? W || pe || ue || _e || ge.length > 0 : pe || ge.length > 0;
-    const Qe = n.user_name || this.hass?.user?.name || "", le = this._config.show_user !== !1 ? Qe : "", Ct = n.client || r.attributes.app_name || r.attributes.friendly_name || "", Se = this._config.show_client !== !1 ? Ct : "", Ce = this._config.show_device_name === !0 && n.device_name || "", V = [...new Set([Ce, Se].filter(Boolean))].join(" · "), te = x && this._optimisticFavorites[x] !== void 0 ? this._optimisticFavorites[x] : n.is_favorite || p?.is_favorite || !1, me = 125.66, fe = me * (1 - this._longPressProgress), B = this._supportsRemote(r);
+    const Qe = n.user_name || this.hass?.user?.name || "", le = this._config.show_user !== !1 ? Qe : "", Ct = n.client || r.attributes.app_name || r.attributes.friendly_name || "", Se = this._config.show_client !== !1 ? Ct : "", Ce = this._config.show_device_name === !0 && n.device_name || "", V = [...new Set([Ce, Se].filter(Boolean))].join(" · "), te = x && this._optimisticFavorites[x] !== void 0 ? this._optimisticFavorites[x] : n.is_favorite || p?.is_favorite || !1, me = 125.66, fe = me * (1 - this._longPressProgress), F = this._supportsRemote(r);
     return this._config.playing_display_mode === "full_art" ? this._renderFullArtPlayingMode({
       stateObj: r,
       rawStateObj: t,
       attributes: n,
       cachedItem: p,
-      imageUrl: S,
+      imageUrl: P,
       backdropUrl: U,
       displayTitle: ae,
       subtitle: Q,
@@ -11684,10 +12037,10 @@ let A = class extends ee {
       userName: le,
       sourceInfo: V,
       isFavorite: te,
-      supportsRemote: B,
+      supportsRemote: F,
       isPaused: R,
       isMusic: z,
-      durationSeconds: u,
+      durationSeconds: h,
       displayPositionSeconds: m,
       curProgress: b,
       handleLeft: y,
@@ -11698,67 +12051,67 @@ let A = class extends ee {
                 ${O ? l`
                     <div class="card-background" style="background-image: url('${U}')"></div>
                     <div class="card-overlay"></div>
-                ` : h}
+                ` : u}
                 
                 <div class="card-content">
                     ${this._config.title ? l`
                         <div class="card-header">${this._config.title}</div>
-                    ` : h}
+                    ` : u}
                     
                     <div class="main-container">
-                        ${S ? l`
-                            <div class="poster-container ${B ? "" : "no-rewind"}" @click=${B ? this._handlePosterRewind : void 0}>
-                                <img src="${N(S, 160)}" alt="${ae}" loading="eager" fetchpriority="high" />
+                        ${P ? l`
+                            <div class="poster-container ${F ? "" : "no-rewind"}" @click=${F ? this._handlePosterRewind : void 0}>
+                                <img src="${N(P, 160)}" alt="${ae}" loading="eager" fetchpriority="high" />
                                 
                                 ${$e ? l`
                                     <span class="poster-badge media-type-badge ${E}">${oe}</span>
-                                ` : h}
+                                ` : u}
                                 ${!se && _e ? l`
                                     <span class="poster-badge rating-badge rating-pill">
                                         <ha-icon icon="mdi:star"></ha-icon>
                                         <span>${_e}</span>
                                     </span>
-                                ` : h}
+                                ` : u}
                                 ${!se && ue ? l`
                                     <span class="poster-badge runtime-badge genre-pill">
                                         <span>${ue}</span>
                                     </span>
-                                ` : h}
+                                ` : u}
 
                                 ${this._rewindActive ? l`
                                     <div class="rewind-overlay">
                                         <span>${d(this.hass.locale?.language || this.hass.language, "rewinding")}</span>
                                     </div>
-                                ` : h}
+                                ` : u}
                             </div>
-                        ` : h}
+                        ` : u}
                         
                         <div class="info-container">
                             <div class="title-row">
-                                ${this._config.show_title !== !1 ? l`<div class="title">${ae}</div>` : h}
+                                ${this._config.show_title !== !1 ? l`<div class="title">${ae}</div>` : u}
                                 <div class="header-actions">
                                     ${Re ? l`
                                         <span class="media-type-badge header-badge ${E}">${oe}</span>
-                                    ` : h}
+                                    ` : u}
                                     ${this._renderPowerButton()}
                                 </div>
                             </div>
 
                             <div class="info-top info-middle">
-                                ${this._overflowState < 4 && Q ? l`<div class="subtitle">${Q}</div>` : h}
+                                ${this._overflowState < 4 && Q ? l`<div class="subtitle">${Q}</div>` : u}
                                 ${this._overflowState < 3 ? this._renderMetaRow({
-      badge: W ? l`<span class="media-type-badge inline-badge ${E}">${oe}</span>` : h,
+      badge: W ? l`<span class="media-type-badge inline-badge ${E}">${oe}</span>` : u,
       year: pe,
       runtime: se ? ue : void 0,
       rating: se ? _e : void 0,
       genres: this._overflowState < 2 ? ge : [],
       isInline: se
-    }) : h}
-                                ${this._overflowState < 1 && (le || V) ? l`<div class="client-line">${le ? l`<strong>${le}</strong>` : h}${le && V ? " · " : ""}${V || h}</div>` : h}
+    }) : u}
+                                ${this._overflowState < 1 && (le || V) ? l`<div class="client-line">${le ? l`<strong>${le}</strong>` : u}${le && V ? " · " : ""}${V || u}</div>` : u}
                             </div>
 
                             <div class="info-bottom">
-                                ${B && this._config.show_controls !== !1 ? l`
+                                ${F && this._config.show_controls !== !1 ? l`
                                     <div class="playback-controls">
                                         ${z ? l`
                                             <ha-icon-button class="music-subtle-btn ${te ? "active" : ""}" .label=${"Favorite"} @click=${() => this._handleFavoriteToggle(n.item_id, te)}>
@@ -11813,7 +12166,7 @@ let A = class extends ee {
                                                         stroke-linecap="round"
                                                         transform="rotate(-90 22 22)" />
                                                 </svg>
-                                            ` : h}
+                                            ` : u}
                                         </div>
 
                                         ${z ? l`
@@ -11829,15 +12182,15 @@ let A = class extends ee {
                                             </ha-icon-button>
                                         `}
                                     </div>
-                                ` : h}
+                                ` : u}
 
                                 ${this._renderVolumeControls()}
 
-                                <div class="progress-container ${B ? "" : "readonly"}"
-                                    @pointerdown=${B ? this._startDrag : void 0}
-                                    @pointermove=${B ? this._handleDrag : void 0}
-                                    @pointerup=${B ? this._endDrag : void 0}
-                                    @pointercancel=${B ? this._cancelDrag : void 0}
+                                <div class="progress-container ${F ? "" : "readonly"}"
+                                    @pointerdown=${F ? this._startDrag : void 0}
+                                    @pointermove=${F ? this._handleDrag : void 0}
+                                    @pointerup=${F ? this._endDrag : void 0}
+                                    @pointercancel=${F ? this._cancelDrag : void 0}
                                 >
                                     <div class="progress-bar">
                                         <div class="progress-fill" style="width: ${b}%; transition: ${this._isDragging ? "none" : "width 1s linear"}; background: ${this._dominantColor}"></div>
@@ -11845,12 +12198,12 @@ let A = class extends ee {
                                     </div>
                                 </div>
 
-                                ${this._config.show_time && u > 0 ? l`
+                                ${this._config.show_time && h > 0 ? l`
                                     <div class="timestamps">
                                         <span class="time-elapsed">${this._formatSeconds(m)}</span>
-                                        <span class="time-remaining">${this._formatSeconds(-(u - m))}</span>
+                                        <span class="time-remaining">${this._formatSeconds(-(h - m))}</span>
                                     </div>
-                                ` : h}
+                                ` : u}
                             </div>
                         </div>
                     </div>
@@ -11868,34 +12221,34 @@ let A = class extends ee {
                 <div class="full-art-backdrop-container">
                     ${r ? l`
                         <img class="full-art-hero-img ${a} ${o}" src="${r}" alt="${e.displayTitle}" />
-                    ` : h}
+                    ` : u}
                     <div class="full-art-scrim"></div>
                 </div>
 
                 <div class="full-art-top-overlay">
                     ${this._config.title ? l`
                         <div class="card-header">${this._config.title}</div>
-                    ` : h}
+                    ` : u}
 
                     <div class="full-art-header-row">
                         <div class="title-row">
                             ${this._config.show_title !== !1 ? l`<div class="title">${e.displayTitle}</div>` : l`<div></div>`}
                             ${e.showBadge && e.badgeStyle === "poster" ? l`
                                 <span class="media-type-badge header-badge ${e.mediaType}">${e.badgeText}</span>
-                            ` : h}
+                            ` : u}
                         </div>
                         <div class="header-actions">
                             ${e.showHeaderBadge ? l`
                                 <span class="media-type-badge header-badge ${e.mediaType}">${e.badgeText}</span>
-                            ` : h}
+                            ` : u}
                             ${this._renderPowerButton()}
                         </div>
                     </div>
 
-                    ${e.subtitle ? l`<div class="subtitle">${e.subtitle}</div>` : h}
+                    ${e.subtitle ? l`<div class="subtitle">${e.subtitle}</div>` : u}
 
                     ${this._renderMetaRow({
-      badge: e.showInlineBadge ? l`<span class="media-type-badge inline-badge ${e.mediaType}">${e.badgeText}</span>` : h,
+      badge: e.showInlineBadge ? l`<span class="media-type-badge inline-badge ${e.mediaType}">${e.badgeText}</span>` : u,
       year: e.yearStr,
       runtime: e.runtimeStr,
       rating: e.ratingStr,
@@ -11904,12 +12257,12 @@ let A = class extends ee {
     })}
 
                     ${e.userName || e.sourceInfo ? l`
-                        <div class="client-line">${e.userName ? l`<strong>${e.userName}</strong>` : h}${e.userName && e.sourceInfo ? " · " : ""}${e.sourceInfo || h}</div>
-                    ` : h}
+                        <div class="client-line">${e.userName ? l`<strong>${e.userName}</strong>` : u}${e.userName && e.sourceInfo ? " · " : ""}${e.sourceInfo || u}</div>
+                    ` : u}
 
                     ${this._config.show_description !== !1 && (e.attributes.overview || e.cachedItem?.description) ? l`
                         <div class="full-art-overview">${e.attributes.overview || e.cachedItem?.description}</div>
-                    ` : h}
+                    ` : u}
                 </div>
 
                 <div class="full-art-bottom-overlay">
@@ -11969,7 +12322,7 @@ let A = class extends ee {
                                             stroke-linecap="round"
                                             transform="rotate(-90 22 22)" />
                                     </svg>
-                                ` : h}
+                                ` : u}
                             </div>
 
                             ${e.isMusic ? l`
@@ -11985,7 +12338,7 @@ let A = class extends ee {
                                 </ha-icon-button>
                             `}
                         </div>
-                    ` : h}
+                    ` : u}
 
                     ${this._renderVolumeControls()}
 
@@ -12006,7 +12359,7 @@ let A = class extends ee {
                             <span class="time-elapsed">${this._formatSeconds(e.displayPositionSeconds)}</span>
                             <span class="time-remaining">${this._formatSeconds(-(e.durationSeconds - e.displayPositionSeconds))}</span>
                         </div>
-                    ` : h}
+                    ` : u}
                 </div>
             </ha-card>
         `;
@@ -12030,8 +12383,8 @@ let A = class extends ee {
       const r = this._config?.entity || "", n = Di(r), c = n ? `${n}_unwatched` : "";
       let p = c && this.hass.states[c] ? c : "";
       p || (p = Object.keys(this.hass.states).find((_) => _.startsWith("sensor.") && _.endsWith("_unwatched")) || "");
-      const u = p ? this.hass.states[p].state : "0";
-      o = o.replace(/\[number\]/g, u);
+      const h = p ? this.hass.states[p].state : "0";
+      o = o.replace(/\[number\]/g, h);
     }
     return l`
             <ha-card class="jellyha-now-playing empty-state">
@@ -12097,19 +12450,19 @@ let A = class extends ee {
     };
   }
   _renderIdleBackdropMode(e, t, i) {
-    const o = N(e.backdrop_url || e.poster_url, 960), s = t ? N(t.backdrop_url || t.poster_url, 960) : "", a = e.community_rating ?? e.rating, r = typeof a == "number" && !isNaN(a) && a > 0 ? a.toFixed(1) : a ? String(a) : "", n = e.runtime_minutes ? ve(e.runtime_minutes) : "", c = e.genres && e.genres.length > 0 ? e.genres.slice(0, 3) : [], p = this._config.show_genres !== !1 ? c : [], u = this._config.show_media_type_badge !== !1 && this._config.badge_style !== "none", _ = this._config.badge_style || this._config.media_type_badge_style || "poster", g = u && _ === "inline", m = u && !g, b = e.type === "Movie", v = e.type === "Episode";
+    const o = N(e.backdrop_url || e.poster_url, 960), s = t ? N(t.backdrop_url || t.poster_url, 960) : "", a = e.community_rating ?? e.rating, r = typeof a == "number" && !isNaN(a) && a > 0 ? a.toFixed(1) : a ? String(a) : "", n = e.runtime_minutes ? ve(e.runtime_minutes) : "", c = e.genres && e.genres.length > 0 ? e.genres.slice(0, 3) : [], p = this._config.show_genres !== !1 ? c : [], h = this._config.show_media_type_badge !== !1 && this._config.badge_style !== "none", _ = this._config.badge_style || this._config.media_type_badge_style || "poster", g = h && _ === "inline", m = h && !g, b = e.type === "Movie", v = e.type === "Episode";
     e.type;
-    const y = e.season, w = e.episode, k = Number(y), $ = Number(w), S = y != null && w != null && !isNaN(k) && !isNaN($) && k >= 0 && $ >= 0, j = v && S ? `S${String(k).padStart(2, "0")}E${String($).padStart(2, "0")}` : "";
-    let C = "", L = "";
-    v ? (C = e.name || e.series_name || "", L = this._config.show_subtitle !== !1 && (e.series_name || e.tagline) || "") : (C = e.name || "", L = this._config.show_subtitle !== !1 && e.tagline || "");
-    const G = this._idleItems.findIndex((z) => b ? z.type === "Movie" : v ? z.type === "Episode" : z.type === "Series" || z.type !== "Movie" && z.type !== "Episode") === this._currentIdleIndex, U = this._config.idle_content_source === "latest_movie" || this._config.idle_content_source === "latest_episode" || this._config.idle_content_source === "latest_both" || this._config.idle_content_source === "recent" && G, O = v && !!j, R = U && O ? j : null, X = b ? "movie" : v ? "episode" : "series", E = U ? b ? d(i, "card.latest_movie_badge") || "LATEST MOVIE" : v ? d(i, "card.latest_episode_badge") || "LATEST EPISODE" : d(i, "card.latest_series_badge") || "LATEST SERIES" : b ? d(i, "movie") || "Movie" : O ? j : d(i, "episode") || "Episode";
+    const y = e.season, w = e.episode, S = Number(y), C = Number(w), P = y != null && w != null && !isNaN(S) && !isNaN(C) && S >= 0 && C >= 0, I = v && P ? `S${String(S).padStart(2, "0")}E${String(C).padStart(2, "0")}` : "";
+    let j = "", L = "";
+    v ? (j = e.name || e.series_name || "", L = this._config.show_subtitle !== !1 && (e.series_name || e.tagline) || "") : (j = e.name || "", L = this._config.show_subtitle !== !1 && e.tagline || "");
+    const G = this._idleItems.findIndex((z) => b ? z.type === "Movie" : v ? z.type === "Episode" : z.type === "Series" || z.type !== "Movie" && z.type !== "Episode") === this._currentIdleIndex, U = this._config.idle_content_source === "latest_movie" || this._config.idle_content_source === "latest_episode" || this._config.idle_content_source === "latest_both" || this._config.idle_content_source === "recent" && G, O = v && !!I, R = U && O ? I : null, X = b ? "movie" : v ? "episode" : "series", E = U ? b ? d(i, "card.latest_movie_badge") || "LATEST MOVIE" : v ? d(i, "card.latest_episode_badge") || "LATEST EPISODE" : d(i, "card.latest_series_badge") || "LATEST SERIES" : b ? d(i, "movie") || "Movie" : O ? I : d(i, "episode") || "Episode";
     return l`
             <ha-card class="jellyha-now-playing has-background idle-showcase-card">
                 <div class="idle-backdrop-container">
                     <img class="idle-backdrop-img" src="${o}" alt="${e.name}" />
                     ${s ? l`
                         <img class="idle-backdrop-img prev-backdrop ${this._idleFadeOut ? "fade-out" : ""}" src="${s}" alt="" />
-                    ` : h}
+                    ` : u}
                     <div class="idle-backdrop-scrim"></div>
                 </div>
 
@@ -12118,29 +12471,29 @@ let A = class extends ee {
                         <span class="media-type-badge idle-backdrop-top-badge ${U ? "latest-badge" : ""} ${X}">${E}</span>
                         ${R ? l`
                             <span class="media-type-badge idle-backdrop-top-badge ${X}">${R}</span>
-                        ` : h}
-                    ` : h}
+                        ` : u}
+                    ` : u}
                     ${this._renderPowerButton()}
                 </div>
 
                 <div class="idle-bottom-content">
                     <div class="title-row">
                         ${this._config.show_title !== !1 ? l`
-                            <h2 class="idle-title">${C}</h2>
-                        ` : h}
+                            <h2 class="idle-title">${j}</h2>
+                        ` : u}
                     </div>
                     ${L ? l`
                         <div class="subtitle-row">
                             <span class="subtitle">${L}</span>
                         </div>
-                    ` : h}
+                    ` : u}
                     ${this._renderMetaRow({
       badge: g ? l`
                             <span class="media-type-badge inline-badge ${U ? "latest-badge" : ""} ${X}">${E}</span>
                             ${R ? l`
                                 <span class="media-type-badge inline-badge ${X}">${R}</span>
-                            ` : h}
-                        ` : h,
+                            ` : u}
+                        ` : u,
       year: this._config.show_year !== !1 && e.year ? e.year : void 0,
       runtime: this._config.show_runtime !== !1 && n ? n : void 0,
       rating: this._config.show_ratings !== !1 && r ? r : void 0,
@@ -12149,27 +12502,27 @@ let A = class extends ee {
     })}
                     ${this._config.show_description !== !1 && e.description ? l`
                         <p class="idle-overview">${e.description}</p>
-                    ` : h}
+                    ` : u}
                 </div>
             </ha-card>
         `;
   }
   _renderIdleCardMode(e, t, i) {
-    const o = N(e.backdrop_url || e.poster_url, 960), s = t ? N(t.backdrop_url || t.poster_url, 960) : "", a = this._config.use_series_image && e.series_poster_url ? e.series_poster_url : e.poster_url || e.backdrop_url, r = N(a, 320), n = t && this._config.use_series_image && t.series_poster_url ? t.series_poster_url : t?.poster_url || t?.backdrop_url, c = n ? N(n, 320) : "", p = e.community_rating ?? e.rating, u = typeof p == "number" && !isNaN(p) && p > 0 ? p.toFixed(1) : p ? String(p) : "", _ = e.runtime_minutes ? ve(e.runtime_minutes) : "", g = this._config.show_runtime !== !1 && _ ? _ : "", m = this._config.show_ratings !== !1 && u ? u : "", b = e.genres && e.genres.length > 0 ? e.genres.slice(0, 3) : [], v = this._config.show_genres !== !1 ? b : [], y = this._config.badge_style || this._config.media_type_badge_style || "poster", w = this._config.show_media_type_badge !== !1 && y !== "none", k = w && y === "inline", $ = e.type === "Movie", S = e.type === "Episode";
+    const o = N(e.backdrop_url || e.poster_url, 960), s = t ? N(t.backdrop_url || t.poster_url, 960) : "", a = this._config.use_series_image && e.series_poster_url ? e.series_poster_url : e.poster_url || e.backdrop_url, r = N(a, 320), n = t && this._config.use_series_image && t.series_poster_url ? t.series_poster_url : t?.poster_url || t?.backdrop_url, c = n ? N(n, 320) : "", p = e.community_rating ?? e.rating, h = typeof p == "number" && !isNaN(p) && p > 0 ? p.toFixed(1) : p ? String(p) : "", _ = e.runtime_minutes ? ve(e.runtime_minutes) : "", g = this._config.show_runtime !== !1 && _ ? _ : "", m = this._config.show_ratings !== !1 && h ? h : "", b = e.genres && e.genres.length > 0 ? e.genres.slice(0, 3) : [], v = this._config.show_genres !== !1 ? b : [], y = this._config.badge_style || this._config.media_type_badge_style || "poster", w = this._config.show_media_type_badge !== !1 && y !== "none", S = w && y === "inline", C = e.type === "Movie", P = e.type === "Episode";
     e.type;
-    const x = e.season, j = e.episode, C = Number(x), L = Number(j), G = x != null && j != null && !isNaN(C) && !isNaN(L) && C >= 0 && L >= 0, O = S && G ? `S${String(C).padStart(2, "0")}E${String(L).padStart(2, "0")}` : "";
+    const x = e.season, I = e.episode, j = Number(x), L = Number(I), G = x != null && I != null && !isNaN(j) && !isNaN(L) && j >= 0 && L >= 0, O = P && G ? `S${String(j).padStart(2, "0")}E${String(L).padStart(2, "0")}` : "";
     let R = "", X = "";
-    S ? (R = e.name || e.series_name || "", X = this._config.show_subtitle !== !1 && (e.series_name || e.tagline) || "") : (R = e.name || "", X = this._config.show_subtitle !== !1 && e.tagline || "");
-    const E = this._idleItems.findIndex((F) => $ ? F.type === "Movie" : S ? F.type === "Episode" : F.type === "Series" || F.type !== "Movie" && F.type !== "Episode") === this._currentIdleIndex, z = this._config.idle_content_source === "latest_movie" || this._config.idle_content_source === "latest_episode" || this._config.idle_content_source === "latest_both" || this._config.idle_content_source === "recent" && E, ae = S && !!O, K = z && ae ? O : null, Z = $ ? "movie" : S ? "episode" : "series", Q = z ? $ ? d(i, "card.latest_movie_badge") || "LATEST MOVIE" : S ? d(i, "card.latest_episode_badge") || "LATEST EPISODE" : d(i, "card.latest_series_badge") || "LATEST SERIES" : $ ? d(i, "movie") || "Movie" : ae ? O : d(i, "episode") || "Episode";
+    P ? (R = e.name || e.series_name || "", X = this._config.show_subtitle !== !1 && (e.series_name || e.tagline) || "") : (R = e.name || "", X = this._config.show_subtitle !== !1 && e.tagline || "");
+    const E = this._idleItems.findIndex((B) => C ? B.type === "Movie" : P ? B.type === "Episode" : B.type === "Series" || B.type !== "Movie" && B.type !== "Episode") === this._currentIdleIndex, z = this._config.idle_content_source === "latest_movie" || this._config.idle_content_source === "latest_episode" || this._config.idle_content_source === "latest_both" || this._config.idle_content_source === "recent" && E, ae = P && !!O, K = z && ae ? O : null, Z = C ? "movie" : P ? "episode" : "series", Q = z ? C ? d(i, "card.latest_movie_badge") || "LATEST MOVIE" : P ? d(i, "card.latest_episode_badge") || "LATEST EPISODE" : d(i, "card.latest_series_badge") || "LATEST SERIES" : C ? d(i, "movie") || "Movie" : ae ? O : d(i, "episode") || "Episode";
     return l`
             <ha-card class="jellyha-now-playing has-background idle-card-mode">
                 <div class="idle-card-bg-container">
                     ${o ? l`
                         <img class="idle-card-bg-img" src="${o}" alt="" />
-                    ` : h}
+                    ` : u}
                     ${s ? l`
                         <img class="idle-card-bg-img prev-bg ${this._idleFadeOut ? "fade-out" : ""}" src="${s}" alt="" />
-                    ` : h}
+                    ` : u}
                     <div class="card-overlay"></div>
                 </div>
 
@@ -12179,26 +12532,26 @@ let A = class extends ee {
                             <img class="idle-poster-img" src="${r}" alt="${e.name}" loading="eager" />
                             ${c ? l`
                                 <img class="idle-poster-img prev-poster ${this._idleFadeOut ? "fade-out" : ""}" src="${c}" alt="" />
-                            ` : h}
+                            ` : u}
                             ${w && y === "poster" ? l`
                                 <div class="poster-badge-group">
                                     <span class="poster-badge media-type-badge ${z ? "latest-badge" : ""} ${Z}">${Q}</span>
                                     ${K ? l`
                                         <span class="poster-badge media-type-badge ${Z}">${K}</span>
-                                    ` : h}
+                                    ` : u}
                                 </div>
-                            ` : h}
-                            ${!k && m ? l`
+                            ` : u}
+                            ${!S && m ? l`
                                 <span class="poster-badge rating-badge rating-pill">
                                     <ha-icon icon="mdi:star"></ha-icon>
                                     <span>${m}</span>
                                 </span>
-                            ` : h}
-                            ${!k && g ? l`
+                            ` : u}
+                            ${!S && g ? l`
                                 <span class="poster-badge runtime-badge genre-pill">
                                     <span>${g}</span>
                                 </span>
-                            ` : h}
+                            ` : u}
                         </div>
 
                         <div class="info-container">
@@ -12206,14 +12559,14 @@ let A = class extends ee {
                                 <div class="title-row">
                                     ${this._config.show_title !== !1 ? l`
                                         <span class="title" title="${e.series_name ? `${e.series_name} - ${e.name}` : R}">${R}</span>
-                                    ` : h}
+                                    ` : u}
                                     <div class="header-actions">
                                         ${w && y === "header" ? l`
                                             <span class="media-type-badge header-badge ${z ? "latest-badge" : ""} ${Z}">${Q}</span>
                                             ${K ? l`
                                                 <span class="media-type-badge header-badge ${Z}">${K}</span>
-                                            ` : h}
-                                        ` : h}
+                                            ` : u}
+                                        ` : u}
                                         ${this._renderPowerButton()}
                                     </div>
                                 </div>
@@ -12221,23 +12574,23 @@ let A = class extends ee {
                                     <div class="subtitle-row">
                                         <span class="subtitle">${X}</span>
                                     </div>
-                                ` : h}
+                                ` : u}
                                 ${this._renderMetaRow({
-      badge: w && k ? l`
+      badge: w && S ? l`
                                         <span class="media-type-badge inline-badge ${z ? "latest-badge" : ""} ${Z}">${Q}</span>
                                         ${K ? l`
                                             <span class="media-type-badge inline-badge ${Z}">${K}</span>
-                                        ` : h}
-                                    ` : h,
+                                        ` : u}
+                                    ` : u,
       year: this._config.show_year !== !1 && e.year ? e.year : void 0,
-      runtime: k ? g : void 0,
-      rating: k ? m : void 0,
+      runtime: S ? g : void 0,
+      rating: S ? m : void 0,
       genres: v,
-      isInline: k
+      isInline: S
     })}
                                 ${this._config.show_description !== !1 && e.description ? l`
                                     <div class="idle-card-desc">${e.description}</div>
-                                ` : h}
+                                ` : u}
                             </div>
                         </div>
                     </div>
@@ -12246,31 +12599,31 @@ let A = class extends ee {
         `;
   }
   _renderMetaRow(e) {
-    const { badge: t, year: i, runtime: o, rating: s, genres: a = [], isInline: r = !0 } = e, n = i ? String(i) : "", c = o ? String(o) : "", p = s ? String(s) : "", u = a && a.length > 0, _ = t && t !== h;
-    if (!(_ || !!n || !!c || !!p || u))
-      return h;
-    const m = !!n || !!c || !!p || u, b = !!c || !!p || u, v = !!p || u;
+    const { badge: t, year: i, runtime: o, rating: s, genres: a = [], isInline: r = !0 } = e, n = i ? String(i) : "", c = o ? String(o) : "", p = s ? String(s) : "", h = a && a.length > 0, _ = t && t !== u;
+    if (!(_ || !!n || !!c || !!p || h))
+      return u;
+    const m = !!n || !!c || !!p || h, b = !!c || !!p || h, v = !!p || h;
     return l`
             <div class="meta-line ${r ? "idle-meta-row" : ""}">
                 ${_ ? l`
                     ${t}
-                    ${m ? l`<span class="idle-dot meta-dot">•</span>` : h}
-                ` : h}
+                    ${m ? l`<span class="idle-dot meta-dot">•</span>` : u}
+                ` : u}
                 ${n ? l`
                     <span class="idle-meta-text meta-text meta-year">${n}</span>
-                    ${b ? l`<span class="idle-dot meta-dot">•</span>` : h}
-                ` : h}
+                    ${b ? l`<span class="idle-dot meta-dot">•</span>` : u}
+                ` : u}
                 ${c ? l`
                     <span class="idle-meta-text meta-text meta-runtime">${c}</span>
-                    ${v ? l`<span class="idle-dot meta-dot">•</span>` : h}
-                ` : h}
+                    ${v ? l`<span class="idle-dot meta-dot">•</span>` : u}
+                ` : u}
                 ${p ? l`
                     <span class="idle-rating-pill rating-pill">
                         <ha-icon icon="mdi:star"></ha-icon>
                         <span>${p}</span>
                     </span>
-                ` : h}
-                ${u ? a.map((y) => l`<span class="genre-pill idle-genre-pill">${y}</span>`) : h}
+                ` : u}
+                ${h ? a.map((y) => l`<span class="genre-pill idle-genre-pill">${y}</span>`) : u}
             </div>
         `;
   }
@@ -12357,15 +12710,15 @@ let A = class extends ee {
           let n = r.items.filter((c) => s && !!c.poster_url || !!c.backdrop_url);
           if (o === "movies" ? n = n.filter((c) => c.type === "Movie") : o === "series" ? n = n.filter((c) => c.type === "Series" || c.type === "Episode") : o === "movies_episodes" ? n = n.filter((c) => c.type === "Movie" || c.type === "Episode") : o === "episodes" && (n = n.filter((c) => c.type === "Episode")), n.length > 0) {
             if (e === "recent") {
-              n.sort((u, _) => {
-                const g = u.date_added ? new Date(u.date_added).getTime() : 0;
+              n.sort((h, _) => {
+                const g = h.date_added ? new Date(h.date_added).getTime() : 0;
                 return (_.date_added ? new Date(_.date_added).getTime() : 0) - g;
               });
               const c = Math.max(1, this._config.idle_recent_limit || 15);
               let p = n.slice(0, c);
               if (o === "movies_episodes") {
-                const u = p.some((g) => g.type === "Movie"), _ = p.some((g) => g.type === "Episode");
-                if (!u) {
+                const h = p.some((g) => g.type === "Movie"), _ = p.some((g) => g.type === "Episode");
+                if (!h) {
                   const g = n.find((m) => m.type === "Movie");
                   g && p.push(g);
                 }
@@ -12374,8 +12727,8 @@ let A = class extends ee {
                   g && p.push(g);
                 }
               } else if (o === "both") {
-                const u = p.some((g) => g.type === "Movie"), _ = p.some((g) => g.type === "Series");
-                if (!u) {
+                const h = p.some((g) => g.type === "Movie"), _ = p.some((g) => g.type === "Series");
+                if (!h) {
                   const g = n.find((m) => m.type === "Movie");
                   g && p.push(g);
                 }
@@ -12450,15 +12803,15 @@ let A = class extends ee {
   _resolveImages(e, t) {
     const i = e.attributes;
     let o = i.series_image_url || t?.series_poster_url, s = i.image_url || t?.poster_url || t?.image_url;
-    const a = (i.media_type || t?.type || e.attributes.media_content_type || "").toLowerCase(), r = i.series_title || e.attributes.media_series_title || t?.series_name, n = i.title || e.attributes.media_title || t?.name, c = a === "episode" || a === "tvshow" || !!r || e.attributes.media_season !== void 0 || t?.season !== void 0, p = e.attributes.media_content_id || "", u = e.attributes.entity_picture || "", _ = i.item_id || t?.id || p || r || e.entity_id;
+    const a = (i.media_type || t?.type || e.attributes.media_content_type || "").toLowerCase(), r = i.series_title || e.attributes.media_series_title || t?.series_name, n = i.title || e.attributes.media_title || t?.name, c = a === "episode" || a === "tvshow" || !!r || e.attributes.media_season !== void 0 || t?.season !== void 0, p = e.attributes.media_content_id || "", h = e.attributes.entity_picture || "", _ = i.item_id || t?.id || p || r || e.entity_id;
     if (_ && this._resolvedImages[_] && (o || (o = this._resolvedImages[_].seriesImageUrl), s || (s = this._resolvedImages[_].episodeImageUrl)), !c || o && s)
       return { seriesImageUrl: o, episodeImageUrl: s };
     t && (t.series_poster_url && !o && (o = t.series_poster_url), (t.poster_url || t.image_url) && !s && (s = t.poster_url || t.image_url));
-    const g = p.match(/^(https?:\/\/[^\/]+)\/(?:Videos|Items)\/([a-zA-Z0-9_-]+)/i), m = u.match(/^(https?:\/\/[^\/]+)\/Items\/([a-zA-Z0-9_-]+)\/Images\/Primary/i), b = u.match(/(?:Items|image\/[a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)/i), v = g ? g[1] : m ? m[1] : "", y = g ? g[2] : i.item_id || null, w = m ? m[2] : b ? b[1] : null, k = p.match(/[?&](?:api_key|ApiKey)=([a-zA-Z0-9]+)/i) || u.match(/[?&](?:api_key|ApiKey)=([a-zA-Z0-9]+)/i), $ = k ? `&api_key=${k[1]}` : "";
+    const g = p.match(/^(https?:\/\/[^\/]+)\/(?:Videos|Items)\/([a-zA-Z0-9_-]+)/i), m = h.match(/^(https?:\/\/[^\/]+)\/Items\/([a-zA-Z0-9_-]+)\/Images\/Primary/i), b = h.match(/(?:Items|image\/[a-zA-Z0-9_-]+)\/([a-zA-Z0-9_-]+)/i), v = g ? g[1] : m ? m[1] : "", y = g ? g[2] : i.item_id || null, w = m ? m[2] : b ? b[1] : null, S = p.match(/[?&](?:api_key|ApiKey)=([a-zA-Z0-9]+)/i) || h.match(/[?&](?:api_key|ApiKey)=([a-zA-Z0-9]+)/i), C = S ? `&api_key=${S[1]}` : "";
     if (v && y) {
-      const S = `${v}/Items/${y}/Images/Primary?maxHeight=300&quality=90${$}`;
-      s || (w === y ? s = u : s = S), w && w !== y && !o && (o = u);
-    } else (m || b) && !s && !o && (s = u);
+      const P = `${v}/Items/${y}/Images/Primary?maxHeight=300&quality=90${C}`;
+      s || (w === y ? s = h : s = P), w && w !== y && !o && (o = h);
+    } else (m || b) && !s && !o && (s = h);
     return _ && (o || s) && (this._resolvedImages[_] = {
       ...this._resolvedImages[_],
       ...o ? { seriesImageUrl: o } : {},
@@ -12583,14 +12936,14 @@ let A = class extends ee {
     }
     this._powerActivating = !0, this.requestUpdate(), setTimeout(() => {
       this._powerActivating = !1, this.requestUpdate();
-    }, 200), await Ti(this.hass, t, this._config?.power_state_entity);
+    }, 200), await Ai(this.hass, t, this._config?.power_state_entity);
   }
   _handlePowerKeydown(e) {
     (e.key === "Enter" || e.key === " ") && (e.preventDefault(), this._handlePowerClick(e));
   }
   _renderPowerButton() {
     const e = this._targetPowerEntity, t = this._config?.show_power_button !== !1 && this._config?.show_power !== !1;
-    if (!e || !t || !this.hass) return h;
+    if (!e || !t || !this.hass) return u;
     const i = gt(this.hass, e, this._config?.power_state_entity), o = i.isStateless ? "stateless-ready" : i.isOn ? "is-on" : "is-off", s = this._powerActivating ? "activating" : "", a = i.isOn ? "Power Off" : "Power On";
     return l`
             <div
@@ -12662,7 +13015,7 @@ let A = class extends ee {
     t && t.hasPointerCapture(e.pointerId) && t.releasePointerCapture(e.pointerId), this._isVolumeDragging = !1, this._dragVolumePercent = null, this.requestUpdate();
   }
   _renderVolumeControls() {
-    if (!(this._config?.show_volume === !0 || this._config?.show_volume !== !1 && !!this._config?.volume_entity) || !this.hass) return h;
+    if (!(this._config?.show_volume === !0 || this._config?.show_volume !== !1 && !!this._config?.volume_entity) || !this.hass) return u;
     const t = this._config?.volume_entity || this._config?.entity, i = t ? this._optimisticVolume[t] : void 0, o = mt(this.hass, this._config?.volume_entity, this._config?.entity, i), s = o.isMuted;
     let a;
     this._isVolumeDragging && this._dragVolumePercent !== null ? a = this._dragVolumePercent : t && this._optimisticVolume[t] !== void 0 ? a = this._optimisticVolume[t] : a = o.volumePercent;
@@ -12714,7 +13067,7 @@ let A = class extends ee {
                     >
                         <ha-icon icon="mdi:plus"></ha-icon>
                     </ha-icon-button>
-                ` : h}
+                ` : u}
             </div>
         `;
   }
@@ -12755,8 +13108,8 @@ let A = class extends ee {
     if (typeof a == "number" ? (o = a, s = e.attributes.media_position_updated_at || e.last_updated) : typeof t.position_ticks == "number" ? (o = t.position_ticks / 1e7, s = e.last_updated) : typeof t.progress_percent == "number" && i > 0 && (o = t.progress_percent / 100 * i, s = e.last_updated), (e.entity_id.startsWith("media_player.") ? e.state === "playing" : !t.is_paused && !!t.item_id) && s) {
       const c = new Date(s).getTime();
       if (!isNaN(c)) {
-        const p = Math.max(0, (Date.now() - c) / 1e3), u = o + p;
-        return i > 0 ? Math.min(i, Math.max(0, u)) : Math.max(0, u);
+        const p = Math.max(0, (Date.now() - c) / 1e3), h = o + p;
+        return i > 0 ? Math.min(i, Math.max(0, h)) : Math.max(0, h);
       }
     }
     return i > 0 ? Math.min(i, Math.max(0, o)) : Math.max(0, o);
@@ -12859,16 +13212,16 @@ let A = class extends ee {
         const s = o.getImageData(0, 0, 50, 50).data;
         let a = 0, r = 0, n = 0, c = 0;
         for (let p = 0; p < s.length; p += 16) {
-          const u = s[p], _ = s[p + 1], g = s[p + 2], m = Math.max(u, _, g), b = Math.min(u, _, g), v = m === 0 ? 0 : (m - b) / m, y = m / 255;
-          v > c && y > 0.15 && y < 0.95 && (c = v, a = u, r = _, n = g);
+          const h = s[p], _ = s[p + 1], g = s[p + 2], m = Math.max(h, _, g), b = Math.min(h, _, g), v = m === 0 ? 0 : (m - b) / m, y = m / 255;
+          v > c && y > 0.15 && y < 0.95 && (c = v, a = h, r = _, n = g);
         }
         if (c > 0.1) {
-          const p = a / 255, u = r / 255, _ = n / 255, g = Math.max(p, u, _), m = Math.min(p, u, _);
+          const p = a / 255, h = r / 255, _ = n / 255, g = Math.max(p, h, _), m = Math.min(p, h, _);
           let b = 0;
           const v = (g + m) / 2, y = g - m, w = y === 0 ? 0 : y / (1 - Math.abs(2 * v - 1));
-          y !== 0 && (g === p ? b = ((u - _) / y + (u < _ ? 6 : 0)) * 60 : g === u ? b = ((_ - p) / y + 2) * 60 : b = ((p - u) / y + 4) * 60);
-          const k = Math.max(v * 100, 70), $ = Math.max(w * 100, 60);
-          this._dominantColor = `hsl(${Math.round(b)}, ${Math.round($)}%, ${Math.round(k)}%)`;
+          y !== 0 && (g === p ? b = ((h - _) / y + (h < _ ? 6 : 0)) * 60 : g === h ? b = ((_ - p) / y + 2) * 60 : b = ((p - h) / y + 4) * 60);
+          const S = Math.max(v * 100, 70), C = Math.max(w * 100, 60);
+          this._dominantColor = `hsl(${Math.round(b)}, ${Math.round(C)}%, ${Math.round(S)}%)`;
         } else
           this._dominantColor = "var(--primary-color)";
       } catch {
@@ -12941,9 +13294,9 @@ let A = class extends ee {
     t.classList.toggle("very-tall-narrow", n);
     const c = t.classList.contains("compact-width") ? o <= 310 : o <= 300;
     t.classList.toggle("compact-width", c);
-    const p = this.shadowRoot?.querySelector(".title-row") || this.shadowRoot?.querySelector(".title"), u = this.shadowRoot?.querySelector(".info-middle") || this.shadowRoot?.querySelector(".info-top"), _ = this.shadowRoot?.querySelector(".info-bottom"), g = this.shadowRoot?.querySelector(".info-container");
+    const p = this.shadowRoot?.querySelector(".title-row") || this.shadowRoot?.querySelector(".title"), h = this.shadowRoot?.querySelector(".info-middle") || this.shadowRoot?.querySelector(".info-top"), _ = this.shadowRoot?.querySelector(".info-bottom"), g = this.shadowRoot?.querySelector(".info-container");
     if (!_) return;
-    const m = _.getBoundingClientRect(), b = p ? p.getBoundingClientRect() : null, v = g ? g.getBoundingClientRect() : null, y = b ? b.bottom : v ? v.top + 32 : e.top + 32, w = m.top - y, k = m.bottom - (e.bottom - 2), $ = k > 0 ? Math.max(0, w - k) : w, S = this._config?.entity ? this.hass?.states[this._config.entity] : null, x = S?.attributes, j = S ? this._extractItemId(S) : null, C = j ? this._resolvedMetadata[j] : null, L = this._config?.show_subtitle !== !1, G = x?.series_title || x?.media_series_title || C?.series_name || "", O = !!(L && (x?.artist_name || x?.media_artist || G || C?.artist_name) || ""), R = this._config?.badge_style || this._config?.media_type_badge_style || "poster", E = this._config?.show_media_type_badge !== !1 && R !== "none" && R === "inline", z = this._config?.show_year !== !1 ? x?.release_year || x?.year || C?.year : "", ae = x?.runtime_minutes || C?.runtime_minutes || 0, K = ae > 0 ? ve(ae) : "", Z = this._config?.show_runtime !== !1 && E && K ? K : "", Q = x?.community_rating ?? C?.community_rating ?? C?.rating, F = Number(Q), pe = !isNaN(F) && F > 0 ? F.toFixed(1) : Q ? String(Q) : "", Me = this._config?.show_ratings !== !1 && E && pe ? pe : "", De = x?.genres && x.genres.length > 0 ? x.genres : C?.genres || [], he = this._config?.show_genres !== !1 && De?.length ? De.slice(0, 3) : [], Le = he.length > 0, ke = E || !!z || !!Z || !!Me, St = O ? s ? 20 : 22 : 0, oe = s ? 26 : 29, ne = s ? 25 : 27, Ne = ke ? oe : 0, se = Math.max(
+    const m = _.getBoundingClientRect(), b = p ? p.getBoundingClientRect() : null, v = g ? g.getBoundingClientRect() : null, y = b ? b.bottom : v ? v.top + 32 : e.top + 32, w = m.top - y, S = m.bottom - (e.bottom - 2), C = S > 0 ? Math.max(0, w - S) : w, P = this._config?.entity ? this.hass?.states[this._config.entity] : null, x = P?.attributes, I = P ? this._extractItemId(P) : null, j = I ? this._resolvedMetadata[I] : null, L = this._config?.show_subtitle !== !1, G = x?.series_title || x?.media_series_title || j?.series_name || "", O = !!(L && (x?.artist_name || x?.media_artist || G || j?.artist_name) || ""), R = this._config?.badge_style || this._config?.media_type_badge_style || "poster", E = this._config?.show_media_type_badge !== !1 && R !== "none" && R === "inline", z = this._config?.show_year !== !1 ? x?.release_year || x?.year || j?.year : "", ae = x?.runtime_minutes || j?.runtime_minutes || 0, K = ae > 0 ? ve(ae) : "", Z = this._config?.show_runtime !== !1 && E && K ? K : "", Q = x?.community_rating ?? j?.community_rating ?? j?.rating, B = Number(Q), pe = !isNaN(B) && B > 0 ? B.toFixed(1) : Q ? String(Q) : "", Me = this._config?.show_ratings !== !1 && E && pe ? pe : "", De = x?.genres && x.genres.length > 0 ? x.genres : j?.genres || [], he = this._config?.show_genres !== !1 && De?.length ? De.slice(0, 3) : [], Le = he.length > 0, ke = E || !!z || !!Z || !!Me, St = O ? s ? 20 : 22 : 0, oe = s ? 26 : 29, ne = s ? 25 : 27, Ne = ke ? oe : 0, se = Math.max(
       120,
       v && v.width > 0 ? v.width : m.width > 0 ? m.width : e.width - 140
     );
@@ -12953,14 +13306,14 @@ let A = class extends ee {
     if (Le) {
       let te = W, me = ke ? 0 : 1;
       for (let fe = 0; fe < he.length; fe++) {
-        const B = Math.max(36, String(he[fe]).length * 7.2 + 16), et = te > 0 ? fe === 0 && ke ? 18 : 8 : 0;
-        te > 0 && te + et + B > se ? (me++, te = B) : te += et + B;
+        const F = Math.max(36, String(he[fe]).length * 7.2 + 16), et = te > 0 ? fe === 0 && ke ? 18 : 8 : 0;
+        te > 0 && te + et + F > se ? (me++, te = F) : te += et + F;
       }
       ke ? $e = me * ne : $e = oe + Math.max(0, me - 1) * ne;
     }
-    const Re = x?.user_name || this.hass?.user?.name || "", Ke = this._config?.show_user !== !1 ? Re : "", Ze = x?.client || S?.attributes?.app_name || S?.attributes?.friendly_name || "", ue = this._config?.show_client !== !1 ? Ze : "", Ue = this._config?.show_device_name === !0 && x?.device_name || "", Oe = [...new Set([Ue, ue].filter(Boolean))].join(" · "), _e = !!(Ke || Oe) ? s ? 18 : 22 : 0, Fe = St, ge = Fe + Ne, Qe = ge + $e, le = Qe + _e, Se = this._overflowState === 0 && k <= 0 && u && u.clientHeight > 0 && u.scrollHeight <= u.clientHeight + 1 ? Math.max($, le) : $ - 2, Ce = this._overflowState;
+    const Re = x?.user_name || this.hass?.user?.name || "", Ke = this._config?.show_user !== !1 ? Re : "", Ze = x?.client || P?.attributes?.app_name || P?.attributes?.friendly_name || "", ue = this._config?.show_client !== !1 ? Ze : "", Ue = this._config?.show_device_name === !0 && x?.device_name || "", Oe = [...new Set([Ue, ue].filter(Boolean))].join(" · "), _e = !!(Ke || Oe) ? s ? 18 : 22 : 0, Be = St, ge = Be + Ne, Qe = ge + $e, le = Qe + _e, Se = this._overflowState === 0 && S <= 0 && h && h.clientHeight > 0 && h.scrollHeight <= h.clientHeight + 1 ? Math.max(C, le) : C - 2, Ce = this._overflowState;
     let V = 4;
-    le + (Ce > 0 ? 4 : 0) <= Se ? V = 0 : Qe + (Ce > 1 ? 4 : 0) <= Se ? V = 1 : ge + (Ce > 2 ? 4 : 0) <= Se ? V = 2 : Fe + (Ce > 3 ? 4 : 0) <= Se ? V = 3 : V = 4, this._overflowState !== V && (this._overflowState = V);
+    le + (Ce > 0 ? 4 : 0) <= Se ? V = 0 : Qe + (Ce > 1 ? 4 : 0) <= Se ? V = 1 : ge + (Ce > 2 ? 4 : 0) <= Se ? V = 2 : Be + (Ce > 3 ? 4 : 0) <= Se ? V = 3 : V = 4, this._overflowState !== V && (this._overflowState = V);
   }
   _formatSeconds(e) {
     const t = e < 0, i = Math.floor(Math.abs(e)), o = Math.floor(i / 3600), s = Math.floor(i % 3600 / 60), a = i % 60, r = t ? "-" : "";
@@ -12970,7 +13323,7 @@ let A = class extends ee {
     return this._formatSeconds(e / 1e7);
   }
 };
-A.styles = ze`
+T.styles = ze`
         :host {
             display: block;
             height: 100%;
@@ -15227,65 +15580,65 @@ A.styles = ze`
 
     `;
 D([
-  q({ attribute: !1 })
-], A.prototype, "hass", 2);
+  H({ attribute: !1 })
+], T.prototype, "hass", 2);
 D([
   f()
-], A.prototype, "_config", 2);
+], T.prototype, "_config", 2);
 D([
   f()
-], A.prototype, "_rewindActive", 2);
+], T.prototype, "_rewindActive", 2);
 D([
   f()
-], A.prototype, "_overflowState", 2);
+], T.prototype, "_overflowState", 2);
 D([
   f()
-], A.prototype, "_dominantColor", 2);
+], T.prototype, "_dominantColor", 2);
 D([
   f()
-], A.prototype, "_longPressProgress", 2);
+], T.prototype, "_longPressProgress", 2);
 D([
   f()
-], A.prototype, "_stopPulse", 2);
+], T.prototype, "_stopPulse", 2);
 D([
   f()
-], A.prototype, "_isDragging", 2);
+], T.prototype, "_isDragging", 2);
 D([
   f()
-], A.prototype, "_dragPercentage", 2);
+], T.prototype, "_dragPercentage", 2);
 D([
   f()
-], A.prototype, "_optimisticSeekPercent", 2);
+], T.prototype, "_optimisticSeekPercent", 2);
 D([
   f()
-], A.prototype, "_isSeeking", 2);
+], T.prototype, "_isSeeking", 2);
 D([
   f()
-], A.prototype, "_powerActivating", 2);
+], T.prototype, "_powerActivating", 2);
 D([
   f()
-], A.prototype, "_isVolumeDragging", 2);
+], T.prototype, "_isVolumeDragging", 2);
 D([
   f()
-], A.prototype, "_dragVolumePercent", 2);
+], T.prototype, "_dragVolumePercent", 2);
 D([
   f()
-], A.prototype, "_optimisticVolume", 2);
+], T.prototype, "_optimisticVolume", 2);
 D([
   f()
-], A.prototype, "_idleItems", 2);
+], T.prototype, "_idleItems", 2);
 D([
   f()
-], A.prototype, "_currentIdleIndex", 2);
+], T.prototype, "_currentIdleIndex", 2);
 D([
   f()
-], A.prototype, "_prevIdleIndex", 2);
+], T.prototype, "_prevIdleIndex", 2);
 D([
   f()
-], A.prototype, "_idleFadeOut", 2);
-A = D([
+], T.prototype, "_idleFadeOut", 2);
+T = D([
   xe("jellyha-now-playing-card")
-], A);
+], T);
 function Ie(e) {
   const t = e.shadowRoot;
   if (!t) return;
@@ -15340,8 +15693,8 @@ function Ie(e) {
       if (Number.isFinite(c)) {
         const p = e.shadowRoot?.querySelector("#CurrentProgress");
         if (p) {
-          const u = Math.floor(c / 60), _ = Math.floor(c % 60);
-          p.innerHTML = `${u}:${_ < 10 ? "0" : ""}${_}`;
+          const h = Math.floor(c / 60), _ = Math.floor(c % 60);
+          p.innerHTML = `${h}:${_ < 10 ? "0" : ""}${_}`;
         }
       }
     });
@@ -15355,8 +15708,8 @@ function it(e) {
     if (this.entityId === "browser" && this._browserPlayer?.player) {
       const c = Number(n.detail?.value ?? n.target?.value);
       if (Number.isFinite(c) && (this._browserPlayer.player.currentTime = c, this._currentProgress)) {
-        const p = Math.floor(c / 60), u = Math.floor(c % 60);
-        this._currentProgress.innerHTML = `${p}:${u < 10 ? "0" : ""}${u}`;
+        const p = Math.floor(c / 60), h = Math.floor(c % 60);
+        this._currentProgress.innerHTML = `${p}:${h < 10 ? "0" : ""}${h}`;
       }
       return;
     }
@@ -15402,9 +15755,9 @@ function it(e) {
   }
   console.info("JellyHA: Successfully installed ha-bar-media-player seek polyfill.");
 }
-const Bt = customElements.get("ha-bar-media-player");
-if (Bt)
-  it(Bt);
+const Ft = customElements.get("ha-bar-media-player");
+if (Ft)
+  it(Ft);
 else if (typeof customElements.whenDefined == "function" && customElements.whenDefined("ha-bar-media-player").then(() => {
   const e = customElements.get("ha-bar-media-player");
   e && it(e);
@@ -15421,10 +15774,10 @@ else if (typeof customElements.whenDefined == "function" && customElements.whenD
   };
   o.__jellyha_bar_patched = !0, customElements.define = o;
 }
-function Ht() {
+function qt() {
   document.querySelectorAll("ha-bar-media-player").forEach((t) => {
     t.entityId === "browser" && Ie(t);
   });
 }
-typeof window < "u" && (window.addEventListener("location-changed", () => setTimeout(Ht, 150)), window.addEventListener("popstate", () => setTimeout(Ht, 150)));
+typeof window < "u" && (window.addEventListener("location-changed", () => setTimeout(qt, 150)), window.addEventListener("popstate", () => setTimeout(qt, 150)));
 //# sourceMappingURL=jellyha-cards.js.map

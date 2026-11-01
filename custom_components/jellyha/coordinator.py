@@ -569,6 +569,8 @@ class JellyHALibraryCoordinator(DataUpdateCoordinator[dict[str, Any]]):
             "index_number": item.get("IndexNumber"),
             "series_name": item.get("SeriesName"),
             "series_id": item.get("SeriesId"),
+            "tmdb_id": (item.get("ProviderIds") or {}).get("Tmdb"),
+            "tvdb_id": (item.get("ProviderIds") or {}).get("Tvdb"),
             "season": item.get("ParentIndexNumber"),
             "episode": item.get("IndexNumber"),
             "dynamic_range": video_attrs["dynamic_range"],

@@ -30,6 +30,24 @@ export class JellyHAItemDetailsModal extends LitElement {
     @state() private _episodesLoading = false;
     @state() private _episodesError = '';
     @state() private _selectedSeason: number | 'all' = 'all';
+    @state() private _seerrUrl?: string;
+    @state() private _seriesCatalog: Array<{
+        seasonNumber: number;
+        episodes: Array<{
+            seasonNumber: number;
+            episodeNumber: number;
+            name?: string;
+            overview?: string;
+            airDate?: string;
+        }>;
+    }> | null = null;
+    @state() private _seriesCatalogLoading = false;
+    @state() private _seriesCatalogError = '';
+    @state() private _expandedCatalogSeasons = new Set<number>();
+    @state() private _downloadBusy = new Set<string>();
+    @state() private _downloadRequested = new Set<string>();
+    @state() private _downloadMessage = '';
+    private _seriesIds: { tmdbId?: number; tvdbId?: number } = {};
 
     // Swipe to close state
     @state() private _touchStartY = 0;
@@ -81,6 +99,7 @@ export class JellyHAItemDetailsModal extends LitElement {
         subtitleMode?: string;
         subtitleLanguage?: string;
         playTargets?: PlayTarget[];
+        seerrUrl?: string;
         showEntityName?: boolean;
     }): Promise<void> {
         this._item = params.item;
@@ -91,6 +110,7 @@ export class JellyHAItemDetailsModal extends LitElement {
         this._subtitleMode = params.subtitleMode;
         this._subtitleLanguage = params.subtitleLanguage;
         this._playTargets = params.playTargets || [];
+        this._seerrUrl = params.seerrUrl;
         this._showEntityName = params.showEntityName;
         this._showTargetPicker = false;
         this._pendingPlayItem = undefined;
@@ -101,11 +121,20 @@ export class JellyHAItemDetailsModal extends LitElement {
         this._episodesLoading = false;
         this._episodesError = '';
         this._selectedSeason = 'all';
+        this._seriesCatalog = null;
+        this._seriesCatalogLoading = false;
+        this._seriesCatalogError = '';
+        this._expandedCatalogSeasons = new Set();
+        this._downloadBusy = new Set();
+        this._downloadRequested = new Set();
+        this._downloadMessage = '';
+        this._seriesIds = {};
         document.body.style.overflow = 'hidden';
 
         if (this._item.type === 'Series') {
             this._fetchNextUp(this._item);
             this._fetchEpisodes();
+            this._fetchSeriesCatalog();
         }
 
         // Fetch full details (MediaStreams, Backdrops) on demand
@@ -222,6 +251,14 @@ export class JellyHAItemDetailsModal extends LitElement {
             }
 
             this._episodes = result?.items || [];
+            if (this._seriesCatalog?.length && this._episodes.length) {
+                const availableSeason = this._episodes.find(
+                    (episode) => typeof episode.season === 'number'
+                )?.season;
+                if (availableSeason != null) {
+                    this._expandedCatalogSeasons = new Set([availableSeason]);
+                }
+            }
         } catch (err) {
             console.warn('Failed to fetch episodes:', err);
             this._episodes = [];
@@ -229,6 +266,131 @@ export class JellyHAItemDetailsModal extends LitElement {
         } finally {
             this._episodesLoading = false;
             this.requestUpdate();
+        }
+    }
+
+    private async _fetchSeriesCatalog(): Promise<void> {
+        const item = this._item;
+        if (!item || item.type !== 'Series' || !this._seerrUrl) return;
+
+        this._seriesCatalogLoading = true;
+        this._seriesCatalogError = '';
+        this.requestUpdate();
+
+        try {
+            let tmdbId = Number(item.tmdb_id) || 0;
+            let tvdbId = Number(item.tvdb_id) || 0;
+
+            if (!tmdbId) {
+                try {
+                    const detail = await this.hass.callWS<{ item?: MediaItem }>({
+                        type: 'jellyha/get_item',
+                        item_id: item.id,
+                        ...(this._serverEntityId
+                            ? { server_entity_id: this._serverEntityId }
+                            : {}),
+                        ...(item.config_entry_id
+                            ? { config_entry_id: item.config_entry_id }
+                            : {}),
+                    });
+                    if (detail?.item) {
+                        tmdbId = Number(detail.item.tmdb_id) || 0;
+                        tvdbId = tvdbId || Number(detail.item.tvdb_id) || 0;
+                    }
+                } catch (err) {
+                    console.warn('Failed to resolve series provider IDs:', err);
+                }
+            }
+
+            if (!tmdbId) {
+                this._seriesCatalogError =
+                    'No TMDB ID is available for this series.';
+                return;
+            }
+
+            const base = this._seerrUrl.replace(/\/$/, '');
+            const res = await fetch(`${base}/api/v1/tv/${tmdbId}`, {
+                headers: { Accept: 'application/json' },
+                cache: 'no-store',
+            });
+            if (!res.ok) throw new Error(`Seerr TV ${res.status}`);
+            const details = await res.json();
+            tvdbId = tvdbId || Number(details.externalIds?.tvdbId) || 0;
+
+            if (this._item?.id !== item.id) return;
+            this._seriesIds = { tmdbId, tvdbId: tvdbId || undefined };
+
+            const seasons = (details.seasons || [])
+                .filter((season: any) => Number(season.episodeCount) > 0)
+                .map((season: any) => ({
+                    seasonNumber: Number(season.seasonNumber),
+                    episodeCount: Number(season.episodeCount) || 0,
+                }));
+
+            const catalog = await Promise.all(
+                seasons.map(async (season: { seasonNumber: number }) => {
+                    try {
+                        const seasonRes = await fetch(
+                            `${base}/api/v1/tv/${tmdbId}/season/${season.seasonNumber}`,
+                            {
+                                headers: { Accept: 'application/json' },
+                                cache: 'no-store',
+                            }
+                        );
+                        if (!seasonRes.ok) {
+                            throw new Error(`Seerr season ${seasonRes.status}`);
+                        }
+                        const seasonData = await seasonRes.json();
+                        return {
+                            seasonNumber: season.seasonNumber,
+                            episodes: (seasonData.episodes || []).map(
+                                (episode: any) => ({
+                                    seasonNumber: season.seasonNumber,
+                                    episodeNumber: Number(episode.episodeNumber),
+                                    name: episode.name,
+                                    overview: episode.overview,
+                                    airDate: episode.airDate,
+                                })
+                            ),
+                        };
+                    } catch (err) {
+                        console.warn(
+                            `Failed to load season ${season.seasonNumber}:`,
+                            err
+                        );
+                        return {
+                            seasonNumber: season.seasonNumber,
+                            episodes: [],
+                        };
+                    }
+                })
+            );
+
+            if (this._item?.id !== item.id) return;
+            this._seriesCatalog = catalog;
+            const availableSeason = this._episodes.find(
+                (episode) => typeof episode.season === 'number'
+            )?.season;
+            const preferredSeason = catalog.some(
+                (season) => season.seasonNumber === availableSeason
+            )
+                ? availableSeason
+                : catalog.find((season) => season.seasonNumber !== 0)
+                      ?.seasonNumber ?? catalog[0]?.seasonNumber;
+            this._expandedCatalogSeasons =
+                preferredSeason != null
+                    ? new Set([preferredSeason])
+                    : new Set();
+        } catch (err: any) {
+            if (this._item?.id === item.id) {
+                this._seriesCatalogError =
+                    err?.message || 'Could not load the full season list.';
+            }
+        } finally {
+            if (this._item?.id === item.id) {
+                this._seriesCatalogLoading = false;
+                this.requestUpdate();
+            }
         }
     }
 
@@ -746,6 +908,98 @@ export class JellyHAItemDetailsModal extends LitElement {
             .season-group-header span {
                 font-size: 0.75rem;
                 color: #9ea4b5;
+            }
+            .season-group-actions {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                flex-wrap: wrap;
+                justify-content: flex-end;
+            }
+            .download-season-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                border: 1px solid rgba(3, 169, 244, 0.35);
+                background: rgba(3, 169, 244, 0.12);
+                color: #7dd3fc;
+                border-radius: 8px;
+                padding: 5px 8px;
+                font-size: 0.72rem;
+                font-weight: 700;
+                cursor: pointer;
+            }
+            .download-season-btn:hover {
+                background: rgba(3, 169, 244, 0.22);
+            }
+            .download-season-btn:disabled {
+                opacity: 0.55;
+                cursor: default;
+            }
+            .download-season-btn ha-icon {
+                --mdc-icon-size: 15px;
+            }
+            .season-toggle-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 3px;
+                border: 0;
+                background: transparent;
+                color: #9ea4b5;
+                border-radius: 7px;
+                padding: 4px 5px;
+                font-size: 0.72rem;
+                cursor: pointer;
+            }
+            .season-toggle-btn:hover {
+                color: #ffffff;
+                background: rgba(255, 255, 255, 0.06);
+            }
+            .season-toggle-btn ha-icon {
+                --mdc-icon-size: 16px;
+            }
+            .download-note {
+                color: #7dd3fc;
+            }
+            .episode-row.missing {
+                opacity: 0.58;
+                cursor: default;
+                background: rgba(255, 255, 255, 0.025);
+            }
+            .episode-row.missing:hover {
+                transform: none;
+                background: rgba(255, 255, 255, 0.035);
+                border-color: rgba(255, 255, 255, 0.12);
+            }
+            .missing-thumb {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: linear-gradient(145deg, rgba(255,255,255,0.06), rgba(0,0,0,0.4));
+            }
+            .missing-thumb ha-icon {
+                --mdc-icon-size: 28px;
+                color: #7a8191;
+            }
+            .missing-badge {
+                color: #fbbf24 !important;
+                font-size: 0.66rem !important;
+                font-weight: 800;
+                letter-spacing: 0.06em;
+            }
+            .missing-overview {
+                display: -webkit-box;
+                -webkit-line-clamp: 2;
+                -webkit-box-orient: vertical;
+                overflow: hidden;
+                opacity: 0.75;
+            }
+            .download-episode-btn {
+                color: #7dd3fc;
+            }
+            .download-episode-btn:disabled {
+                opacity: 0.5;
+                cursor: default;
             }
             .season-group-list {
                 display: flex;
@@ -1683,37 +1937,357 @@ export class JellyHAItemDetailsModal extends LitElement {
             }));
     }
 
+    private _getCatalogSeasons(): Array<{
+        season: number;
+        episodes: Array<{
+            item?: MediaItem;
+            season: number;
+            episode: number;
+            name?: string;
+            overview?: string;
+        }>;
+    }> {
+        const availableByKey = new Map<string, MediaItem>();
+        for (const episode of this._episodes) {
+            const season = typeof episode.season === 'number' ? episode.season : 0;
+            const number = episode.episode ?? episode.index_number;
+            if (typeof number !== 'number') continue;
+            availableByKey.set(`${season}:${number}`, episode);
+        }
+
+        const grouped = new Map<
+            number,
+            Array<{
+                item?: MediaItem;
+                season: number;
+                episode: number;
+                name?: string;
+                overview?: string;
+            }>
+        >();
+
+        if (this._seriesCatalog?.length) {
+            for (const catalogSeason of this._seriesCatalog) {
+                const entries: Array<{
+                    item?: MediaItem;
+                    season: number;
+                    episode: number;
+                    name?: string;
+                    overview?: string;
+                }> = [];
+                const seen = new Set<number>();
+                for (const episode of catalogSeason.episodes) {
+                    seen.add(episode.episodeNumber);
+                    entries.push({
+                        item: availableByKey.get(
+                            `${catalogSeason.seasonNumber}:${episode.episodeNumber}`
+                        ),
+                        season: catalogSeason.seasonNumber,
+                        episode: episode.episodeNumber,
+                        name: episode.name,
+                        overview: episode.overview,
+                    });
+                }
+                for (const episode of this._episodes) {
+                    if (episode.season !== catalogSeason.seasonNumber) continue;
+                    const number = episode.episode ?? episode.index_number;
+                    if (typeof number !== 'number' || seen.has(number)) continue;
+                    entries.push({
+                        item: episode,
+                        season: catalogSeason.seasonNumber,
+                        episode: number,
+                        name: episode.name,
+                        overview: episode.description,
+                    });
+                }
+                if (entries.length) {
+                    grouped.set(catalogSeason.seasonNumber, entries);
+                }
+            }
+        }
+
+        for (const [key, episode] of availableByKey) {
+            const season = typeof episode.season === 'number' ? episode.season : 0;
+            const number = episode.episode ?? episode.index_number;
+            if (typeof number !== 'number') continue;
+            const entries = grouped.get(season) || [];
+            if (!entries.some((entry) => entry.episode === number)) {
+                entries.push({
+                    item: episode,
+                    season,
+                    episode: number,
+                    name: episode.name,
+                    overview: episode.description,
+                });
+            }
+            grouped.set(season, entries);
+        }
+
+        return Array.from(grouped.entries())
+            .sort(([a], [b]) => {
+                if (a === 0 && b !== 0) return 1;
+                if (b === 0 && a !== 0) return -1;
+                return a - b;
+            })
+            .map(([season, episodes]) => ({
+                season,
+                episodes: episodes.sort((a, b) => a.episode - b.episode),
+            }));
+    }
+
+    private _formatRuntime(minutes?: number): string {
+        if (!minutes || minutes <= 0) return '';
+        const hours = Math.floor(minutes / 60);
+        const remainder = Math.round(minutes % 60);
+        if (hours > 0 && remainder > 0) return `${hours}h ${remainder}m`;
+        if (hours > 0) return `${hours}h`;
+        return `${remainder}m`;
+    }
+
+    private _formatEpisodeRange(numbers: number[]): string {
+        const values = [...numbers].map(Number).sort((a, b) => a - b);
+        if (!values.length) return '';
+        if (values.length === 1) {
+            return `E${String(values[0]).padStart(2, '0')}`;
+        }
+        const consecutive = values.every(
+            (value, index) => index === 0 || value === values[index - 1] + 1
+        );
+        if (consecutive) {
+            return `E${String(values[0]).padStart(2, '0')}\u2013E${String(
+                values[values.length - 1]
+            ).padStart(2, '0')}`;
+        }
+        return values
+            .map((value) => `E${String(value).padStart(2, '0')}`)
+            .join(', ');
+    }
+
+    private async _downloadEpisodes(
+        seasonNumber: number,
+        episodeNumbers: number[],
+        seasonWide = false
+    ): Promise<void> {
+        const item = this._item;
+        const ids = this._seriesIds;
+        if (!item || !ids.tmdbId || !this._seerrUrl) {
+            this._downloadMessage = 'Download service is not configured.';
+            this.requestUpdate();
+            return;
+        }
+
+        const keys = episodeNumbers.map(
+            (episodeNumber) => `${seasonNumber}:${episodeNumber}`
+        );
+        if (seasonWide) keys.push(`season:${seasonNumber}`);
+        const busy = new Set(this._downloadBusy);
+        keys.forEach((key) => busy.add(key));
+        this._downloadBusy = busy;
+        this.requestUpdate();
+
+        try {
+            const response = await fetch(
+                `${this._seerrUrl.replace(/\/$/, '')}/api/cinema/tv-request`,
+                {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tmdbId: ids.tmdbId,
+                        tvdbId: ids.tvdbId,
+                        title: item.name,
+                        seasons: [
+                            {
+                                seasonNumber,
+                                episodes: episodeNumbers.length
+                                    ? episodeNumbers
+                                    : null,
+                            },
+                        ],
+                    }),
+                }
+            );
+            if (!response.ok) {
+                let message = 'Download failed.';
+                try {
+                    const data = await response.json();
+                    if (data?.message) message = data.message;
+                } catch {}
+                throw new Error(message);
+            }
+
+            const requested = new Set(this._downloadRequested);
+            keys.forEach((key) => requested.add(key));
+            this._downloadRequested = requested;
+            const range = this._formatEpisodeRange(episodeNumbers);
+            this._downloadMessage = seasonWide
+                ? `Download started for Season ${seasonNumber}.`
+                : `Download started for S${String(seasonNumber).padStart(
+                      2,
+                      '0'
+                  )} ${range}.`;
+        } catch (err: any) {
+            this._downloadMessage = err?.message || 'Download failed.';
+        } finally {
+            const nextBusy = new Set(this._downloadBusy);
+            keys.forEach((key) => nextBusy.delete(key));
+            this._downloadBusy = nextBusy;
+            this.requestUpdate();
+        }
+    }
+
+    private _downloadSeason(
+        seasonNumber: number,
+        episodes: Array<{ episode: number; item?: MediaItem }>
+    ): void {
+        const missing = episodes
+            .filter((episode) => !episode.item)
+            .map((episode) => episode.episode);
+        if (missing.length) {
+            void this._downloadEpisodes(seasonNumber, missing, true);
+        }
+    }
+
+    private _renderMissingEpisodeRow(entry: {
+        season: number;
+        episode: number;
+        name?: string;
+        overview?: string;
+    }): TemplateResult {
+        const key = `${entry.season}:${entry.episode}`;
+        const busy = this._downloadBusy.has(key);
+        const requested = this._downloadRequested.has(key);
+        return html`
+            <div class="episode-row missing">
+                <div class="episode-thumb-wrap missing-thumb">
+                    <ha-icon icon="mdi:download-off-outline"></ha-icon>
+                </div>
+                <div class="episode-content">
+                    <div class="episode-header-line">
+                        <span class="episode-number">S${entry.season}:E${entry.episode}</span>
+                        <span class="missing-badge">NOT DOWNLOADED</span>
+                    </div>
+                    <h4 class="episode-title" title="${entry.name || 'Episode'}">
+                        ${entry.name || `Episode ${entry.episode}`}
+                    </h4>
+                    ${entry.overview ? html`
+                        <div class="episode-meta missing-overview">${entry.overview}</div>
+                    ` : nothing}
+                </div>
+                <div class="episode-actions">
+                    <button
+                        class="play-episode-btn download-episode-btn"
+                        ?disabled=${busy || requested}
+                        @click=${(e: Event) => {
+                            e.stopPropagation();
+                            void this._downloadEpisodes(entry.season, [entry.episode]);
+                        }}
+                        type="button"
+                        title=${requested ? 'Download started' : 'Download episode'}
+                    >
+                        <ha-icon icon=${requested ? 'mdi:check' : 'mdi:download'}></ha-icon>
+                    </button>
+                </div>
+            </div>
+        `;
+    }
+
     private _renderSeriesEpisodesSection(): TemplateResult | typeof nothing {
         if (!this._item || this._item.type !== 'Series') return nothing;
 
-        const seasons = this._getGroupedSeasons();
-        const total = this._episodes.length;
+        const seasons = this._getCatalogSeasons();
+        const total = seasons.reduce(
+            (count, season) => count + season.episodes.length,
+            0
+        );
+        const available = seasons.reduce(
+            (count, season) =>
+                count + season.episodes.filter((episode) => episode.item).length,
+            0
+        );
+        const canDownload = !!(this._seerrUrl && this._seriesIds.tmdbId);
 
         return html`
             <div class="series-episodes-section">
                 <div class="series-episodes-heading">
                     <h2>Episodes</h2>
                     ${total > 0 ? html`
-                        <span class="series-episodes-count">${total} episode${total === 1 ? '' : 's'}</span>
+                        <span class="series-episodes-count">
+                            ${this._seriesCatalog
+                                ? `${available} of ${total} downloaded`
+                                : `${total} episode${total === 1 ? '' : 's'}`}
+                        </span>
                     ` : nothing}
                 </div>
+                ${this._seriesCatalogLoading ? html`
+                    <div class="episodes-placeholder">Loading full season list.</div>
+                ` : nothing}
                 ${this._episodesLoading ? html`
                     <div class="episodes-placeholder">Loading episodes…</div>
                 ` : this._episodesError ? html`
                     <div class="episodes-placeholder">${this._episodesError}</div>
                 ` : seasons.length === 0 ? html`
                     <div class="episodes-placeholder">No episodes found.</div>
-                ` : seasons.map(({ season, episodes }) => html`
-                    <section class="season-group">
-                        <div class="season-group-header">
-                            <h3>${season === 0 ? 'Specials' : `Season ${season}`}</h3>
-                            <span>${episodes.length} episode${episodes.length === 1 ? '' : 's'}</span>
-                        </div>
-                        <div class="season-group-list">
-                            ${episodes.map(ep => this._renderInlineEpisodeRow(ep))}
-                        </div>
-                    </section>
-                `)}
+                ` : html`
+                    ${this._downloadMessage ? html`
+                        <div class="episodes-placeholder download-note">${this._downloadMessage}</div>
+                    ` : nothing}
+                    ${seasons.map(({ season, episodes }) => {
+                        const missing = episodes.filter((episode) => !episode.item);
+                        const seasonKey = `season:${season}`;
+                        const seasonBusy =
+                            this._downloadBusy.has(seasonKey) ||
+                            this._downloadRequested.has(seasonKey);
+                        const expanded = this._expandedCatalogSeasons.has(season);
+                        return html`
+                            <section class="season-group">
+                                <div class="season-group-header">
+                                    <h3>${season === 0 ? 'Specials' : `Season ${season}`}</h3>
+                                    <div class="season-group-actions">
+                                        <span>${episodes.length - missing.length}/${episodes.length} downloaded</span>
+                                        ${missing.length && canDownload ? html`
+                                            <button
+                                                class="download-season-btn"
+                                                ?disabled=${seasonBusy}
+                                                @click=${(e: Event) => {
+                                                    e.stopPropagation();
+                                                    this._downloadSeason(season, episodes);
+                                                }}
+                                                type="button"
+                                            >
+                                                <ha-icon icon=${seasonBusy ? 'mdi:check' : 'mdi:download'}></ha-icon>
+                                                ${seasonBusy ? 'Downloading' : 'Download season'}
+                                            </button>
+                                        ` : nothing}
+                                        <button
+                                            class="season-toggle-btn"
+                                            @click=${(e: Event) => {
+                                                e.stopPropagation();
+                                                const next = new Set(this._expandedCatalogSeasons);
+                                                if (next.has(season)) next.delete(season);
+                                                else next.add(season);
+                                                this._expandedCatalogSeasons = next;
+                                            }}
+                                            type="button"
+                                            aria-expanded=${expanded}
+                                        >
+                                            <ha-icon icon=${expanded ? 'mdi:chevron-up' : 'mdi:chevron-down'}></ha-icon>
+                                            ${expanded ? 'Hide' : 'Show'}
+                                        </button>
+                                    </div>
+                                </div>
+                                ${expanded ? html`
+                                    <div class="season-group-list">
+                                        ${episodes.map((episode) =>
+                                            episode.item
+                                                ? this._renderInlineEpisodeRow(episode.item)
+                                                : this._renderMissingEpisodeRow(episode)
+                                        )}
+                                    </div>
+                                ` : nothing}
+                            </section>
+                        `;
+                    })}
+                `}
             </div>
         `;
     }
@@ -1787,140 +2361,69 @@ export class JellyHAItemDetailsModal extends LitElement {
     private _renderEpisodesContent(): TemplateResult {
         if (!this._item) return html``;
 
-        // Prefer explicit season name, fallback to series name
-        const title = this._item.name;
+        const catalog = this._getCatalogSeasons();
+        const seasons = catalog.map((season) => season.season);
+        const displayed =
+            this._selectedSeason && this._selectedSeason !== 'all'
+                ? catalog.filter((season) => season.season === this._selectedSeason)
+                : catalog;
 
-        // Collect available seasons
-        const seasons = Array.from(
-            new Set(
-                this._episodes
-                    .map(ep => ep.season)
-                    .filter((s): s is number => typeof s === 'number' && !isNaN(s))
-            )
-        ).sort((a, b) => a - b);
-
-        const displayedEpisodes = this._selectedSeason && this._selectedSeason !== 'all'
-            ? this._episodes.filter(ep => ep.season === this._selectedSeason)
-            : this._episodes;
-
-        // Use full height wrapper for sticky header + scrollable list
         return html`
             <div class="episodes-container">
                 <div class="episodes-header">
                     <button class="back-btn" @click=${(e: Event) => this._toggleEpisodesView(e)} type="button" title="Back to Details">
                         <ha-icon icon="mdi:arrow-left"></ha-icon>
                     </button>
-                    <h2 class="episodes-title">${title}</h2>
+                    <h2 class="episodes-title">${this._item.name}</h2>
                 </div>
 
                 ${seasons.length > 1 ? html`
                     <div class="season-selector">
                         <button class="season-tab ${this._selectedSeason === 'all' || !this._selectedSeason ? 'active' : ''}" @click=${() => { this._haptic('selection'); this._selectedSeason = 'all'; this.requestUpdate(); }}>All</button>
                         ${seasons.map(s => html`
-                            <button class="season-tab ${this._selectedSeason === s ? 'active' : ''}" @click=${() => { this._haptic('selection'); this._selectedSeason = s; this.requestUpdate(); }}>Season ${s}</button>
+                            <button class="season-tab ${this._selectedSeason === s ? 'active' : ''}" @click=${() => { this._haptic('selection'); this._selectedSeason = s; this.requestUpdate(); }}>${s === 0 ? 'Specials' : `Season ${s}`}</button>
                         `)}
                     </div>
                 ` : nothing}
-                
+
                 <div class="episodes-list">
                     ${this._episodesLoading ? html`
-                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">
-                            Loading episodes…
-                        </div>
+                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">Loading episodes�</div>
                     ` : this._episodesError ? html`
-                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">
-                            ${this._episodesError}
-                        </div>
-                    ` : displayedEpisodes.length === 0 ? html`
-                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">
-                            No episodes found.
-                        </div>
-                    ` : displayedEpisodes.map(ep => {
-                        const isNextUp = !!(this._nextUpItem && ep.id === this._nextUpItem.id);
-                        const epNumber = ep.season
-                            ? `S${ep.season}:E${ep.episode ?? ep.index_number ?? ''}`
-                            : (ep.episode ?? ep.index_number ? `E${ep.episode ?? ep.index_number}` : '');
-                        const runtime = this._formatRuntime(ep.runtime_minutes);
-
+                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">${this._episodesError}</div>
+                    ` : displayed.length === 0 ? html`
+                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">No episodes found.</div>
+                    ` : displayed.map(({ season, episodes }) => {
+                        const missing = episodes.filter((episode) => !episode.item);
+                        const seasonKey = `season:${season}`;
+                        const seasonBusy =
+                            this._downloadBusy.has(seasonKey) ||
+                            this._downloadRequested.has(seasonKey);
+                        const canDownload = !!(this._seerrUrl && this._seriesIds.tmdbId);
                         return html`
-                            <div class="episode-row ${isNextUp ? 'next-up-highlight' : ''}"
-                                @click=${(e: Event) => {
-                                    e.stopPropagation();
-                                    if (this._playTargets.length > 0) {
-                                        this._handlePlayEpisode(ep);
-                                    }
-                                }}
-                                @touchstart=${(e: TouchEvent) => this._handleRowTouchStart(e)}
-                                @touchmove=${(e: TouchEvent) => this._handleRowTouchMove(e)}
-                                @touchend=${(e: TouchEvent) => this._handleRowTouchEnd(e)}
-                                @touchcancel=${(e: TouchEvent) => this._handleRowTouchEnd(e)}
-                                style="${this._playTargets.length === 0 ? 'cursor: default;' : ''}">
-                                
-                                <div class="episode-thumb-wrap">
-                                    <img class="episode-thumb" src="${ep.poster_url || ep.backdrop_url || this._item!.poster_url}" alt="${ep.name || ''}" />
-                                    ${this._playTargets.length > 0 ? html`
-                                        <div class="episode-play-overlay">
-                                            <ha-icon icon="mdi:play"></ha-icon>
-                                        </div>
-                                    ` : nothing}
+                            <section class="season-group">
+                                <div class="season-group-header">
+                                    <h3>${season === 0 ? 'Specials' : `Season ${season}`}</h3>
+                                    <div class="season-group-actions">
+                                        <span>${episodes.length - missing.length}/${episodes.length} downloaded</span>
+                                        ${missing.length && canDownload ? html`
+                                            <button class="download-season-btn" ?disabled=${seasonBusy} @click=${(e: Event) => { e.stopPropagation(); this._downloadSeason(season, episodes); }} type="button">
+                                                <ha-icon icon=${seasonBusy ? 'mdi:check' : 'mdi:download'}></ha-icon>
+                                                ${seasonBusy ? 'Downloading' : 'Download season'}
+                                            </button>
+                                        ` : nothing}
+                                    </div>
                                 </div>
-                                
-                                <div class="episode-content">
-                                    ${(epNumber || isNextUp) ? html`
-                                        <div class="episode-header-line">
-                                            ${epNumber ? html`<span class="episode-number">${epNumber}</span>` : nothing}
-                                            ${isNextUp ? html`<span class="next-up-badge">NEXT UP</span>` : nothing}
-                                        </div>
-                                    ` : nothing}
-
-                                    <h4 class="episode-title" title="${ep.name || 'Episode'}">${ep.name || 'Episode'}</h4>
-                                    
-                                    ${(runtime || ep.rating) ? html`
-                                        <div class="episode-meta">
-                                            ${runtime ? html`<span>${runtime}</span>` : nothing}
-                                            ${runtime && ep.rating ? html`<span class="meta-dot">•</span>` : nothing}
-                                            ${ep.rating ? html`<span class="episode-rating"><ha-icon icon="mdi:star"></ha-icon>${ep.rating.toFixed(1)}</span>` : nothing}
-                                        </div>
-                                    ` : nothing}
+                                <div class="season-group-list">
+                                    ${episodes.map((episode) => episode.item ? this._renderInlineEpisodeRow(episode.item) : this._renderMissingEpisodeRow(episode))}
                                 </div>
-
-                                <div class="episode-actions">
-                                    <button class="play-episode-btn watched-btn ${ep.is_played ? 'active' : ''}"
-                                        @click=${(e: Event) => { e.stopPropagation(); this._handleMarkEpisodeWatched(ep); }}
-                                        @touchstart=${(e: Event) => e.stopPropagation()}
-                                        @touchend=${(e: Event) => e.stopPropagation()}
-                                        type="button"
-                                        title="${ep.is_played ? 'Mark Unwatched' : 'Mark Watched'}">
-                                        <ha-icon icon="mdi:check"></ha-icon>
-                                    </button>
-
-                                    ${this._playTargets.length > 0 ? html`
-                                        <button class="play-episode-btn"
-                                            @click=${(e: Event) => { e.stopPropagation(); this._handlePlayEpisode(ep); }}
-                                            @touchstart=${(e: Event) => e.stopPropagation()}
-                                            @touchend=${(e: Event) => e.stopPropagation()}
-                                            type="button"
-                                            title="${this._getEpisodePlayTitle()}">
-                                            <ha-icon icon="${this._getEpisodePlayIcon()}"></ha-icon>
-                                        </button>
-                                    ` : nothing}
-                                </div>
-                            </div>
+                            </section>
                         `;
                     })}
                 </div>
             </div>
         `;
     }
-
-    private _formatRuntime(minutes?: number): string {
-        if (!minutes) return '';
-        const hours = Math.floor(minutes / 60);
-        const mins = minutes % 60;
-        if (hours > 0) return `${hours}h ${mins}m`;
-        return `${mins} min`;
-    }
-
     private _renderMediaDetails(item: MediaItem): TemplateResult {
         const chips: TemplateResult[] = [];
         const streams = item.media_streams || [];

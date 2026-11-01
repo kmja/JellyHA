@@ -27,7 +27,7 @@ import '../editors/jellyha-library-editor';
 import '../components/jellyha-media-item';
 
 // Register card in the custom cards array
-const CARD_VERSION = '1.7.5.3';
+const CARD_VERSION = '1.7.5.5';
 
 console.info(
   `%c JELLYHA-LIBRARY-CARD %c v${CARD_VERSION} `,
@@ -2027,6 +2027,7 @@ export class JellyHALibraryCard extends LitElement {
         subtitleMode,
         subtitleLanguage,
         playTargets: this._getEffectivePlayTargets(),
+        seerrUrl: this._config.seerr_url,
         showEntityName: this._config.show_entity_name ?? this._config.show_modal_entity_name,
       });
     }

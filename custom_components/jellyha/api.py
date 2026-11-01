@@ -369,7 +369,7 @@ class JellyfinApiClient:
             "SortOrder": effective_sort_order,
             "Recursive": "true",
             "IncludeItemTypes": ",".join(item_types),
-            "Fields": "Genres,RunTimeTicks,DateCreated,CommunityRating,Overview,UserData,RemoteTrailers,AlbumArtist,Artists,ParentId,ParentIndexNumber,IndexNumber,SeriesName,SeriesId,SeasonName,SeasonId,SeriesPrimaryImageTag,BackdropImageTags,ParentBackdropImageTags,ParentBackdropItemId,MediaStreams,MediaSources,Path,RecursiveItemCount,ChildCount",
+            "Fields": "Genres,RunTimeTicks,DateCreated,CommunityRating,Overview,UserData,RemoteTrailers,AlbumArtist,Artists,ParentId,ParentIndexNumber,IndexNumber,SeriesName,SeriesId,SeasonName,SeasonId,SeriesPrimaryImageTag,BackdropImageTags,ParentBackdropImageTags,ParentBackdropItemId,MediaStreams,MediaSources,Path,RecursiveItemCount,ChildCount,ProviderIds",
             "CollapseBoxSetItems": "false",
         }
 

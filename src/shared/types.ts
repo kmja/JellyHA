@@ -96,6 +96,8 @@ export interface MediaItem {
     last_played_date?: string;
     series_name?: string;
     series_id?: string;
+    tmdb_id?: string | number;
+    tvdb_id?: string | number;
     entry_id?: string;
     config_entry_id?: string;
     season_name?: string;
@@ -146,6 +148,7 @@ export interface JellyHALibraryCardConfig extends LovelaceCardConfig {
     media_type?: 'movies' | 'series' | 'next_up' | 'both';
     tv_content?: 'series' | 'episodes';
     pending_items?: PendingMediaItem[];
+    seerr_url?: string;
     items_per_page?: number;
     max_pages?: number;
     auto_swipe_interval?: number; // seconds, 0 = disabled
