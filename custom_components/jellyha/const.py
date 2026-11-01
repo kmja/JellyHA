@@ -62,6 +62,10 @@ DEFAULT_IMAGE_HEIGHT = 500
 # API
 DEFAULT_API_TIMEOUT = 30
 API_TIMEOUT = DEFAULT_API_TIMEOUT
+
+# Local Seerr auto-login proxy. The card talks to this through Home Assistant
+# so phones/remote sessions never need direct access to the Windows PC.
+SEERR_PROXY_URL = "http://192.168.50.166:5055"
 MAX_RETRIES = 3
 RETRY_BACKOFF_FACTOR = 2
 

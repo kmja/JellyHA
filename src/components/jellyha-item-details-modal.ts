@@ -269,6 +269,28 @@ export class JellyHAItemDetailsModal extends LitElement {
         }
     }
 
+    private async _seerrCall(
+        path: string,
+        method: 'GET' | 'POST' = 'GET',
+        body?: Record<string, unknown>
+    ): Promise<any> {
+        const result = await this.hass.callWS<{
+            status: number;
+            data: any;
+        }>({
+            type: 'jellyha/seerr_request',
+            path,
+            method,
+            ...(body ? { body } : {}),
+        });
+        if (result.status < 200 || result.status >= 300) {
+            throw new Error(
+                result.data?.message || `Seerr request failed (${result.status})`
+            );
+        }
+        return result.data;
+    }
+
     private async _fetchSeriesCatalog(): Promise<void> {
         const item = this._item;
         if (!item || item.type !== 'Series' || !this._seerrUrl) return;
@@ -308,13 +330,7 @@ export class JellyHAItemDetailsModal extends LitElement {
                 return;
             }
 
-            const base = this._seerrUrl.replace(/\/$/, '');
-            const res = await fetch(`${base}/api/v1/tv/${tmdbId}`, {
-                headers: { Accept: 'application/json' },
-                cache: 'no-store',
-            });
-            if (!res.ok) throw new Error(`Seerr TV ${res.status}`);
-            const details = await res.json();
+            const details = await this._seerrCall(`/api/v1/tv/${tmdbId}`);
             tvdbId = tvdbId || Number(details.externalIds?.tvdbId) || 0;
 
             if (this._item?.id !== item.id) return;
@@ -330,17 +346,9 @@ export class JellyHAItemDetailsModal extends LitElement {
             const catalog = await Promise.all(
                 seasons.map(async (season: { seasonNumber: number }) => {
                     try {
-                        const seasonRes = await fetch(
-                            `${base}/api/v1/tv/${tmdbId}/season/${season.seasonNumber}`,
-                            {
-                                headers: { Accept: 'application/json' },
-                                cache: 'no-store',
-                            }
+                        const seasonData = await this._seerrCall(
+                            `/api/v1/tv/${tmdbId}/season/${season.seasonNumber}`
                         );
-                        if (!seasonRes.ok) {
-                            throw new Error(`Seerr season ${seasonRes.status}`);
-                        }
-                        const seasonData = await seasonRes.json();
                         return {
                             seasonNumber: season.seasonNumber,
                             episodes: (seasonData.episodes || []).map(
@@ -2086,34 +2094,19 @@ export class JellyHAItemDetailsModal extends LitElement {
         this.requestUpdate();
 
         try {
-            const response = await fetch(
-                `${this._seerrUrl.replace(/\/$/, '')}/api/cinema/tv-request`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        tmdbId: ids.tmdbId,
-                        tvdbId: ids.tvdbId,
-                        title: item.name,
-                        seasons: [
-                            {
-                                seasonNumber,
-                                episodes: episodeNumbers.length
-                                    ? episodeNumbers
-                                    : null,
-                            },
-                        ],
-                    }),
-                }
-            );
-            if (!response.ok) {
-                let message = 'Download failed.';
-                try {
-                    const data = await response.json();
-                    if (data?.message) message = data.message;
-                } catch {}
-                throw new Error(message);
-            }
+            await this._seerrCall('/api/cinema/tv-request', 'POST', {
+                tmdbId: ids.tmdbId,
+                tvdbId: ids.tvdbId,
+                title: item.name,
+                seasons: [
+                    {
+                        seasonNumber,
+                        episodes: episodeNumbers.length
+                            ? episodeNumbers
+                            : null,
+                    },
+                ],
+            });
 
             const requested = new Set(this._downloadRequested);
             keys.forEach((key) => requested.add(key));

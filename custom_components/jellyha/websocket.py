@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import logging
 import asyncio
+import json
 import uuid
 from datetime import timedelta
 from typing import Any
@@ -14,9 +15,10 @@ from homeassistant.components.http.auth import async_sign_path
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers import config_validation as cv
 from homeassistant.helpers import entity_registry as er
+from homeassistant.helpers.aiohttp_client import async_get_clientsession
 from homeassistant.exceptions import HomeAssistantError
 
-from .const import DOMAIN, ITEM_TYPE_EPISODE
+from .const import DOMAIN, ITEM_TYPE_EPISODE, SEERR_PROXY_URL
 from .api import BROWSER_DEVICE_PROFILE
 from .security import is_valid_item_id
 
@@ -88,6 +90,7 @@ def async_register_websocket(hass: HomeAssistant) -> None:
         websocket_api.async_register_command(hass, websocket_get_item)
         websocket_api.async_register_command(hass, websocket_resolve_playback)
         websocket_api.async_register_command(hass, websocket_stop_playback)
+        websocket_api.async_register_command(hass, websocket_seerr_request)
     except HomeAssistantError:
         # Command already registered, which is fine (e.g. multiple entries)
         pass
@@ -586,3 +589,57 @@ async def websocket_stop_playback(
     if manager and target:
         await manager.terminate_session(target)
     connection.send_result(msg["id"], {"success": True})
+
+
+@websocket_api.websocket_command({
+    vol.Required("type"): "jellyha/seerr_request",
+    vol.Required("path"): cv.string,
+    vol.Optional("method", default="GET"): vol.In(["GET", "POST"]),
+    vol.Optional("body"): dict,
+})
+@websocket_api.async_response
+async def websocket_seerr_request(
+    hass: HomeAssistant,
+    connection: websocket_api.ActiveConnection,
+    msg: dict[str, Any],
+) -> None:
+    """Proxy Seerr API calls through Home Assistant.
+
+    This keeps phones and remote HTTPS sessions working without direct access
+    to the Windows PC that runs the Seerr proxy.
+    """
+    path = msg["path"]
+    if (
+        ".." in path
+        or not path.startswith("/api/")
+        or not (
+            path.startswith("/api/v1/")
+            or path.startswith("/api/cinema/")
+        )
+    ):
+        connection.send_error(
+            msg["id"], websocket_api.ERR_INVALID_FORMAT, "Invalid Seerr path"
+        )
+        return
+
+    url = SEERR_PROXY_URL.rstrip("/") + path
+    session = async_get_clientsession(hass)
+
+    try:
+        kwargs: dict[str, Any] = {"timeout": 30}
+        if msg.get("body") is not None:
+            kwargs["json"] = msg["body"]
+        async with session.request(msg.get("method", "GET"), url, **kwargs) as response:
+            text = await response.text()
+            try:
+                data = json.loads(text) if text else None
+            except ValueError:
+                data = text
+            connection.send_result(
+                msg["id"], {"status": response.status, "data": data}
+            )
+    except Exception as err:
+        _LOGGER.warning("Seerr proxy request failed for %s: %s", path, err)
+        connection.send_error(
+            msg["id"], websocket_api.ERR_UNKNOWN_ERROR, f"Seerr proxy error: {err}"
+        )
