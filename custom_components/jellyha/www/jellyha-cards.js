@@ -1912,6 +1912,12 @@ const Xt = ze`
     min-width: fit-content;
   }
 
+  .grid jellyha-media-item,
+  .grid .pending-item jellyha-media-item {
+    --jf-poster-width: 100%;
+    --jf-poster-max-width: 100%;
+  }
+
   .grid jellyha-media-item {
     width: auto;
     justify-self: center;
@@ -3442,7 +3448,7 @@ const Xt = ze`
   /* Poster Container with border */
   .poster-container {
     position: relative;
-    width: 140px;
+    width: var(--jf-poster-width, 140px);
     aspect-ratio: 2/3;
     border-radius: var(--jf-poster-radius);
     overflow: visible;
@@ -3819,7 +3825,7 @@ const Xt = ze`
   .media-info-below {
     padding: 6px 2px 0;
     text-align: center;
-    max-width: 140px;
+    max-width: var(--jf-poster-max-width, 140px);
     transition: transform var(--jf-transition);
   }
 
@@ -4047,11 +4053,11 @@ const Xt = ze`
   /* Responsive - smaller screens */
   @media (max-width: 600px) {
     .poster-container {
-      width: 120px;
+      width: var(--jf-poster-width, 120px);
     }
 
     .media-info-below {
-      max-width: 120px;
+      max-width: var(--jf-poster-max-width, 120px);
     }
 
     .hover-overlay .overlay-description {
@@ -9573,7 +9579,7 @@ var qi = Object.defineProperty, Wi = Object.getOwnPropertyDescriptor, M = (e, t,
     (r = e[a]) && (s = (o ? r(t, i, s) : r(s)) || s);
   return o && s && qi(t, i, s), s;
 };
-const Vi = "1.7.5.2";
+const Vi = "1.7.5.3";
 console.info(
   `%c JELLYHA-LIBRARY-CARD %c v${Vi} `,
   "color: white; background: #00a4dc; font-weight: bold;",

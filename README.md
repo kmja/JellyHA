@@ -9,7 +9,7 @@ Jellyfin for Home Assistant
 > **Local cinema fork:** This fork adds a grouped seasons/episodes list to the
 > series details dialog and fixes "Last watched" sorting for TV series by
 > deriving their last-played date from episodes. The bundled card is rebuilt and
-> versioned as `1.7.5.2`.
+> versioned as `1.7.5.3`.
 
 <div align="center">
   <img src="./docs/JellyHA-Library-Featured.png" width="48%" alt="Featured View" />

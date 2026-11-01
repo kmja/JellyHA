@@ -327,6 +327,12 @@ export const cardStyles = css`
     min-width: fit-content;
   }
 
+  .grid jellyha-media-item,
+  .grid .pending-item jellyha-media-item {
+    --jf-poster-width: 100%;
+    --jf-poster-max-width: 100%;
+  }
+
   .grid jellyha-media-item {
     width: auto;
     justify-self: center;
@@ -1857,7 +1863,7 @@ export const cardStyles = css`
   /* Poster Container with border */
   .poster-container {
     position: relative;
-    width: 140px;
+    width: var(--jf-poster-width, 140px);
     aspect-ratio: 2/3;
     border-radius: var(--jf-poster-radius);
     overflow: visible;
@@ -2234,7 +2240,7 @@ export const cardStyles = css`
   .media-info-below {
     padding: 6px 2px 0;
     text-align: center;
-    max-width: 140px;
+    max-width: var(--jf-poster-max-width, 140px);
     transition: transform var(--jf-transition);
   }
 
@@ -2462,11 +2468,11 @@ export const cardStyles = css`
   /* Responsive - smaller screens */
   @media (max-width: 600px) {
     .poster-container {
-      width: 120px;
+      width: var(--jf-poster-width, 120px);
     }
 
     .media-info-below {
-      max-width: 120px;
+      max-width: var(--jf-poster-max-width, 120px);
     }
 
     .hover-overlay .overlay-description {
