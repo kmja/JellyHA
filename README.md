@@ -9,7 +9,7 @@ Jellyfin for Home Assistant
 > **Local cinema fork:** This fork adds a grouped seasons/episodes list to the
 > series details dialog and fixes "Last watched" sorting for TV series by
 > deriving their last-played date from episodes. The bundled card is rebuilt and
-> versioned as `1.7.5.1`.
+> versioned as `1.7.5.2`.
 
 <div align="center">
   <img src="./docs/JellyHA-Library-Featured.png" width="48%" alt="Featured View" />
@@ -17,7 +17,7 @@ Jellyfin for Home Assistant
 </div>
 
 <details>
-  <summary><b>📸 Click to view all layout variations & screenshots (Carousel, List, Next Up, Details Modal, Card Selector)</b></summary>
+  <summary><b>ðŸ“¸ Click to view all layout variations & screenshots (Carousel, List, Next Up, Details Modal, Card Selector)</b></summary>
   <br>
   <div align="center">
     <img src="./docs/JellyHA-Library-Grid.png" width="44%" alt="Library Card - Grid View" />
@@ -31,24 +31,24 @@ Jellyfin for Home Assistant
 
 ## Features
 
-- 🎬 Display movies and TV shows from your library
-- ▶️ In-Dashboard Browser Playback: Stream media directly within your Home Assistant dashboards with native Closed Captions (CC) and subtitle track support
-- 📱 Native Jellyfin Client Remote Control: 1-tap playback to official Jellyfin apps (Android TV, Google TV, Fire TV, Web, etc.) via native session control without Chromecast transcoding overhead
-- 🎯 Configurable Play Actions: Instant Browser playback, Native Jellyfin Client playback, Chromecast casting, or custom scripts in More Info
-- 📺 Cast media directly to Chromecast (Gen 1 supported)
-- 📡 Live TV Support: Visual channel browsing in Media Browser
-- 🎵 Music Support
-- 📂 Full integration with Home Assistant Media Browser
-- ⏯️ Full playback control: Play, Pause, Stop, Seek, Next/Previous Track, Shuffle, Repeat
-- 🎮 Per-user media players with transport and volume controls
-- 📺 Dedicated per-device media players with custom Jellyfin nicknames
-- 🌈 Real-time Dynamic Range detection: Reporting of `SDR`, `HDR10`, `HDR10+`, `Dolby Vision`, and `HLG`
-- 🎨 Four Library Card layouts: Carousel, Grid, List, Featured
-- 🔍 Built-in Search Bar with Title and Genre filtering
-- 🤖 Advanced automation triggers via custom sensors & services
-- 🌍 8 languages: English, German, French, Spanish, Italian, Dutch, Slovenian, Russian
+- ðŸŽ¬ Display movies and TV shows from your library
+- â–¶ï¸ In-Dashboard Browser Playback: Stream media directly within your Home Assistant dashboards with native Closed Captions (CC) and subtitle track support
+- ðŸ“± Native Jellyfin Client Remote Control: 1-tap playback to official Jellyfin apps (Android TV, Google TV, Fire TV, Web, etc.) via native session control without Chromecast transcoding overhead
+- ðŸŽ¯ Configurable Play Actions: Instant Browser playback, Native Jellyfin Client playback, Chromecast casting, or custom scripts in More Info
+- ðŸ“º Cast media directly to Chromecast (Gen 1 supported)
+- ðŸ“¡ Live TV Support: Visual channel browsing in Media Browser
+- ðŸŽµ Music Support
+- ðŸ“‚ Full integration with Home Assistant Media Browser
+- â¯ï¸ Full playback control: Play, Pause, Stop, Seek, Next/Previous Track, Shuffle, Repeat
+- ðŸŽ® Per-user media players with transport and volume controls
+- ðŸ“º Dedicated per-device media players with custom Jellyfin nicknames
+- ðŸŒˆ Real-time Dynamic Range detection: Reporting of `SDR`, `HDR10`, `HDR10+`, `Dolby Vision`, and `HLG`
+- ðŸŽ¨ Four Library Card layouts: Carousel, Grid, List, Featured
+- ðŸ” Built-in Search Bar with Title and Genre filtering
+- ðŸ¤– Advanced automation triggers via custom sensors & services
+- ðŸŒ 8 languages: English, German, French, Spanish, Italian, Dutch, Slovenian, Russian
 
-- 🚀 Multi-Instance Support: Run multiple servers concurrently
+- ðŸš€ Multi-Instance Support: Run multiple servers concurrently
 
 ## Documentation
 
@@ -130,12 +130,12 @@ To adjust settings after initial configuration:
 
 | Library Type | Library Card Support | Background Sync | Search Service | Now Playing & Playback |
 |---|---|---|---|---|
-| Movies | ✅ | ✅ | ✅ (`jellyha.search`) | ✅ |
-| TV Shows | ✅ | ✅ | ✅ (`jellyha.search`) | ✅ |
-| Music | ❌ *(Media Browser & Services)* | ✅ *(Count & Cache)* | ✅ (`jellyha.music_search`) | ✅ (`jellyha.play_music`) |
-| Live TV | ❌ *(Media Browser & Services)* | ✅ *(Channels)* | ✅ (`jellyha.get_live_tv_channels`) | ✅ (`jellyha.play_live_tv_channel`) |
-| Playlists | ❌ *(Media Browser & Services)* | ✅ *(On-Demand)* | ✅ (`jellyha.get_playlists`) | ✅ (`jellyha.play_playlist`) |
-| BoxSets / Collections | ❌ *(Media Browser & Services)* | ✅ *(On-Demand)* | ✅ (`jellyha.get_collections`) | ✅ *(1-Tap Playback)* |
+| Movies | âœ… | âœ… | âœ… (`jellyha.search`) | âœ… |
+| TV Shows | âœ… | âœ… | âœ… (`jellyha.search`) | âœ… |
+| Music | âŒ *(Media Browser & Services)* | âœ… *(Count & Cache)* | âœ… (`jellyha.music_search`) | âœ… (`jellyha.play_music`) |
+| Live TV | âŒ *(Media Browser & Services)* | âœ… *(Channels)* | âœ… (`jellyha.get_live_tv_channels`) | âœ… (`jellyha.play_live_tv_channel`) |
+| Playlists | âŒ *(Media Browser & Services)* | âœ… *(On-Demand)* | âœ… (`jellyha.get_playlists`) | âœ… (`jellyha.play_playlist`) |
+| BoxSets / Collections | âŒ *(Media Browser & Services)* | âœ… *(On-Demand)* | âœ… (`jellyha.get_collections`) | âœ… *(1-Tap Playback)* |
 
 > [!NOTE]
 > The **JellyHA Library Card** (`custom:jellyha-library-card`) is intentionally optimized for rich visual browsing of **Movies** and **TV Shows** (posters, episodes, Next Up badges). Music, Live TV, Playlists, and BoxSets/Collections are supported natively via the **Home Assistant Media Browser** (`/media-browser`), all media player entities, and dedicated automation actions.
@@ -160,7 +160,7 @@ max_pages: 5
 
 Supports custom click, hold, and double-tap actions (Play in Browser, Play on Jellyfin Client, Cast, More Info, Open in Jellyfin, Play Trailer, or Run Script with complete item metadata passed automatically), plus configurable More Information dialog play actions (`modal_play_actions`). *(Note: "Play on Jellyfin Client" requires a remote-control capable client such as Android TV, Google TV, Fire TV, Moonfin for Android, Jellyfin Web, Desktop, Wholphin, Roku, etc).*
 
-👉 **[See full Library Card configuration and script variables in docs/cards.md](docs/cards.md)**
+ðŸ‘‰ **[See full Library Card configuration and script variables in docs/cards.md](docs/cards.md)**
 
 ### Now Playing Card (`custom:jellyha-now-playing-card`)
 
@@ -175,9 +175,9 @@ badge_style: header # 'poster' (default), 'header' (uncovered poster), 'inline' 
 idle_backdrop_cycle: true # Enable ambient media slideshow when nothing is playing
 ```
 
-👉 **[See full Now Playing Card configuration in docs/cards.md](docs/cards.md#now-playing-card-customjellyha-now-playing-card)**
+ðŸ‘‰ **[See full Now Playing Card configuration in docs/cards.md](docs/cards.md#now-playing-card-customjellyha-now-playing-card)**
 
-#### 🔄 Migrating from Legacy Now Playing Sensors to Media Players
+#### ðŸ”„ Migrating from Legacy Now Playing Sensors to Media Players
 
 Starting in **JellyHA v1.3.0**, per-user `media_player.jellyha_user_<user>` entities (and per-device `media_player.jellyha_device_<device>`) are the primary, official entities for tracking and controlling playback. Legacy `sensor.jellyha_now_playing_<user>` entities remain active for backward compatibility until **v2.0.0**.
 
@@ -196,7 +196,7 @@ show_background: true
 - **Identical State Values**: `media_player.jellyha_user_<user>` outputs the exact same state values (`playing`, `paused`, `idle`). Any dashboard conditional visibility rules (e.g. `state: playing` or `state_not: idle`) continue to work seamlessly without modifying your conditions.
 - **Direct Playback Controls**: Enables native Home Assistant services (`media_player.media_play_pause`, `media_player.media_seek`, `media_player.media_stop`), physical client device tracking (`media_player.jellyha_device_<device_name>`), and voice commands via Home Assistant Assist. Existing installations preserve legacy entity IDs without breaking.
 
-👉 **[See full Now Playing Card options in docs/cards.md](docs/cards.md)**
+ðŸ‘‰ **[See full Now Playing Card options in docs/cards.md](docs/cards.md)**
 
 ## Media Browser
 
@@ -206,10 +206,10 @@ JellyHA integrates natively with Home Assistant's Media Browser:
 2. Select **JellyHA**.
 3. Choose your server (if multiple are connected).
 4. Browse your media with instant 1-tap playback to your browser or Cast players:
-   - 🎬 **Movies & TV Series**: Unwatched items and Next Up episodes.
-   - 📦 **Collections / BoxSets**: 1-tap playback automatically resolves and plays the first movie.
-   - 📡 **Live TV Channels**: Authenticated channel logos, channel numbers, and live stream tuning.
-   - 🎵 **Music & Playlists**: Artists, albums, tracks, and playlists with bit-perfect audio streaming.
+   - ðŸŽ¬ **Movies & TV Series**: Unwatched items and Next Up episodes.
+   - ðŸ“¦ **Collections / BoxSets**: 1-tap playback automatically resolves and plays the first movie.
+   - ðŸ“¡ **Live TV Channels**: Authenticated channel logos, channel numbers, and live stream tuning.
+   - ðŸŽµ **Music & Playlists**: Artists, albums, tracks, and playlists with bit-perfect audio streaming.
 
 *(If "Media" is not visible in the sidebar, see [Media Browser Entry Not Visible in Sidebar](docs/troubleshooting.md#media-browser-entry-not-visible-in-sidebar).)*
 
@@ -230,7 +230,7 @@ Explore ready-to-use recipes in the dedicated **[Examples & Cookbook Library](ex
 
 For solutions to common issues, browser cache clearing, Android TV & Wholphin playback setup, and diagnostic logging:
 
-👉 **[Read the complete Troubleshooting Guide in docs/troubleshooting.md](docs/troubleshooting.md)**
+ðŸ‘‰ **[Read the complete Troubleshooting Guide in docs/troubleshooting.md](docs/troubleshooting.md)**
 
 ## Support
 
@@ -262,3 +262,4 @@ This integration is provided as a neutral interface for your private media libra
 [my-ha-url]: https://my.home-assistant.io/redirect/config_flow_start?domain=jellyha
 [coffee-badge]: https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-yellow.svg?logo=buy-me-a-coffee
 [coffee-url]: https://www.buymeacoffee.com/zupancicmarko
+

@@ -7,7 +7,7 @@
 import { LitElement, html, nothing, PropertyValues, TemplateResult } from 'lit';
 import { customElement, property, state, query } from 'lit/decorators.js';
 
-import { HomeAssistant, LovelaceCard, MediaItem, SensorData, JellyHALibraryCardConfig, PlayTarget } from '../shared/types';
+import { HomeAssistant, LovelaceCard, MediaItem, SensorData, JellyHALibraryCardConfig, PendingMediaItem, PlayTarget } from '../shared/types';
 import { isNewItem, getScriptDefaultName } from '../shared/utils';
 import { JellyHAItemDetailsModal } from '../components/jellyha-item-details-modal';
 import { showJellyHABrowserPlayer } from '../components/jellyha-browser-player';
@@ -27,7 +27,7 @@ import '../editors/jellyha-library-editor';
 import '../components/jellyha-media-item';
 
 // Register card in the custom cards array
-const CARD_VERSION = '1.7.5';
+const CARD_VERSION = '1.7.5.2';
 
 console.info(
   `%c JELLYHA-LIBRARY-CARD %c v${CARD_VERSION} `,
@@ -1366,6 +1366,12 @@ export class JellyHALibraryCard extends LitElement {
     const columns = this._config.columns || 1;
     const isAutoColumns = columns === 1;
     const isHorizontal = !enablePagination && (this._config.auto_swipe_interval || 0) > 0;
+    const pendingItems = this._currentPage === 0
+      ? (this._config.pending_items || []).filter((pending) => {
+          const pendingName = String(pending.name || '').toLowerCase();
+          return pendingName && !this._items.some((item) => String(item.name || '').toLowerCase() === pendingName);
+        }).slice(0, 5)
+      : [];
 
     return html`
       <div class="grid-outer">
@@ -1383,6 +1389,7 @@ export class JellyHALibraryCard extends LitElement {
             class="grid ${enablePagination ? 'paginated' : ''} ${isAutoColumns ? 'auto-columns' : ''} ${isHorizontal ? 'horizontal' : ''}"
             style="--jf-columns: ${columns}; --jf-grid-rows: ${columns}"
           >
+            ${pendingItems.map((item) => this._renderPendingItem(item))}
             ${visibleItems.map((item) => html`
                 <jellyha-media-item
                     .hass=${this.hass}
@@ -1407,6 +1414,56 @@ export class JellyHALibraryCard extends LitElement {
    * Render featured layout: first item of each page as a large hero poster,
    * and the remaining items (default 3) as a compact, height-locked queue beside it.
    */
+  private _renderPendingItem(item: PendingMediaItem): TemplateResult {
+    const ready = !!item.pending_ready;
+    const progress = Math.max(0, Math.min(100, Number(item.pending_progress) || 0));
+    const activate = (e: Event) => {
+      e.stopPropagation();
+      if (e instanceof KeyboardEvent) e.preventDefault();
+      this.dispatchEvent(new CustomEvent('cinema-watch-now', {
+        detail: { title: item.name },
+        bubbles: true,
+        composed: true,
+      }));
+    };
+
+    return html`
+      <div
+        class="pending-item ${ready ? 'ready' : 'downloading'}"
+        role=${ready ? 'button' : 'presentation'}
+        tabindex=${ready ? '0' : '-1'}
+        aria-label=${ready ? `${item.name} ready to watch` : `${item.name} downloading`}
+        @click=${ready ? activate : undefined}
+        @keydown=${ready
+          ? (e: KeyboardEvent) => {
+              if (e.key === 'Enter' || e.key === ' ') activate(e);
+            }
+          : undefined}
+      >
+        <jellyha-media-item
+          .hass=${this.hass}
+          .config=${this._config}
+          .item=${item as unknown as MediaItem}
+          .layout=${'grid'}
+          inert
+        ></jellyha-media-item>
+        <div class="pending-overlay">
+          ${ready
+            ? html`<div class="pending-ready-label">READY Â· TAP TO WATCH</div>`
+            : html`
+                <div class="pending-progress">
+                  <div class="pending-progress-bar" style="width:${progress}%"></div>
+                </div>
+                <div class="pending-status">
+                  <span>${item.pending_label || 'Downloading'}</span>
+                  <span>${Math.round(progress)}%</span>
+                </div>
+              `}
+        </div>
+      </div>
+    `;
+  }
+
   private _renderFeatured(items: MediaItem[], enablePagination: boolean): TemplateResult {
     const itemsPerPage = this._getEffectiveItemsPerPage();
     const rawMaxPages = this._config.max_pages;
@@ -2058,4 +2115,5 @@ declare global {
     'jellyha-library-card': JellyHALibraryCard;
   }
 }
+
 

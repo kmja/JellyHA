@@ -113,6 +113,21 @@ export interface MediaItem {
     filepath?: string;
 }
 
+/** A Seerr request that is still downloading, shown as a greyed-out card in the grid. */
+export interface PendingMediaItem {
+    id: string;
+    name: string;
+    type: 'Movie' | 'Series' | 'Episode' | string;
+    year?: number;
+    poster_url?: string;
+    backdrop_url?: string;
+    genres?: string[];
+    pending_progress?: number;
+    pending_label?: string;
+    pending_ready?: boolean;
+    pending_request_id?: number;
+}
+
 export interface PlayTarget {
     type: 'cast' | 'script' | 'browser' | 'play-browser' | 'client';
     name?: string;               // Display label (e.g. "Play on Apple TV")
@@ -130,6 +145,7 @@ export interface JellyHALibraryCardConfig extends LovelaceCardConfig {
     layout?: 'carousel' | 'grid' | 'list' | 'featured';
     media_type?: 'movies' | 'series' | 'next_up' | 'both';
     tv_content?: 'series' | 'episodes';
+    pending_items?: PendingMediaItem[];
     items_per_page?: number;
     max_pages?: number;
     auto_swipe_interval?: number; // seconds, 0 = disabled

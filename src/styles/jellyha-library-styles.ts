@@ -332,6 +332,82 @@ export const cardStyles = css`
     justify-self: center;
   }
 
+  /* Pending / downloading request card */
+  .grid .pending-item {
+    position: relative;
+    width: 100%;
+    min-width: 0;
+    justify-self: stretch;
+  }
+  .grid .pending-item jellyha-media-item {
+    display: block;
+    width: 100%;
+    opacity: .55;
+    filter: grayscale(.35);
+    pointer-events: none;
+  }
+  .grid .pending-item.ready {
+    cursor: pointer;
+  }
+  .grid .pending-item.ready jellyha-media-item {
+    opacity: .9;
+    filter: none;
+  }
+  .pending-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 6;
+  }
+  .pending-progress {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 6px;
+    border-radius: 10px 10px 0 0;
+    overflow: hidden;
+    background: rgba(0,0,0,.55);
+  }
+  .pending-progress-bar {
+    height: 100%;
+    width: 0;
+    background: #38bdf8;
+    transition: width .3s ease;
+  }
+  .pending-status {
+    position: absolute;
+    top: 10px;
+    left: 8px;
+    right: 8px;
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 700;
+    text-shadow: 0 1px 3px rgba(0,0,0,.8);
+  }
+  .pending-status span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .pending-ready-label {
+    position: absolute;
+    top: 10px;
+    left: 8px;
+    right: 8px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    background: rgba(34,197,94,.88);
+    color: #ffffff;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: .06em;
+    text-align: center;
+  }
+
   /* Auto-fill responsive grid when columns = 1 (Auto) */
   .grid.auto-columns {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));

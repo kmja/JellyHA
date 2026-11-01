@@ -33,7 +33,7 @@ _LOGGER = logging.getLogger(__name__)
 
 # Local card build version. Bump whenever the bundled jellyha-cards.js is
 # rebuilt so browsers fetch the new module instead of a cached copy.
-CARD_BUILD_VERSION = "1.7.5.1"
+CARD_BUILD_VERSION = "1.7.5.2"
 
 from dataclasses import dataclass
 
@@ -204,4 +204,5 @@ async def _async_register_lovelace_resource(hass: HomeAssistant, version: str) -
             await resources.async_create_item({"res_type": "module", "url": target_url})
     except Exception as err:
         _LOGGER.warning("Could not automatically register Lovelace resource: %s", err)
+
 
