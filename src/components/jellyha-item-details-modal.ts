@@ -47,6 +47,10 @@ export class JellyHAItemDetailsModal extends LitElement {
     @state() private _downloadBusy = new Set<string>();
     @state() private _downloadRequested = new Set<string>();
     @state() private _downloadMessage = '';
+    @state() private _sonarrStatus = new Map<string, any>();
+    @state() private _sonarrStatusLoaded = false;
+    private _statusPollTimer: number | null = null;
+    private _statusFetchInFlight = false;
     private _seriesIds: { tmdbId?: number; tvdbId?: number } = {};
 
     // Swipe to close state
@@ -69,6 +73,7 @@ export class JellyHAItemDetailsModal extends LitElement {
 
     public disconnectedCallback(): void {
         super.disconnectedCallback();
+        this._stopStatusPolling();
         window.removeEventListener('keydown', this._handleKeyDown);
         if (this._portalContainer) {
             this._portalContainer.remove();
@@ -128,6 +133,9 @@ export class JellyHAItemDetailsModal extends LitElement {
         this._downloadBusy = new Set();
         this._downloadRequested = new Set();
         this._downloadMessage = '';
+        this._sonarrStatus = new Map();
+        this._sonarrStatusLoaded = false;
+        this._stopStatusPolling();
         this._seriesIds = {};
         document.body.style.overflow = 'hidden';
 
@@ -145,6 +153,7 @@ export class JellyHAItemDetailsModal extends LitElement {
 
     public closeDialog = () => {
         this._open = false;
+        this._stopStatusPolling();
         this._confirmDelete = false;
         this._showTargetPicker = false;
         this._pendingPlayItem = undefined;
@@ -335,6 +344,7 @@ export class JellyHAItemDetailsModal extends LitElement {
 
             if (this._item?.id !== item.id) return;
             this._seriesIds = { tmdbId, tvdbId: tvdbId || undefined };
+            this._startStatusPolling();
 
             const seasons = (details.seasons || [])
                 .filter((season: any) => Number(season.episodeCount) > 0)
@@ -400,6 +410,68 @@ export class JellyHAItemDetailsModal extends LitElement {
                 this.requestUpdate();
             }
         }
+    }
+
+    private _startStatusPolling(): void {
+        this._stopStatusPolling();
+        if (!this._open || !this._seerrUrl || !this._seriesIds.tvdbId) return;
+        void this._fetchSonarrStatus();
+        this._statusPollTimer = window.setInterval(
+            () => void this._fetchSonarrStatus(),
+            5000
+        );
+    }
+
+    private _stopStatusPolling(): void {
+        if (this._statusPollTimer !== null) {
+            window.clearInterval(this._statusPollTimer);
+            this._statusPollTimer = null;
+        }
+    }
+
+    private async _fetchSonarrStatus(): Promise<void> {
+        if (
+            !this._open ||
+            !this._seerrUrl ||
+            !this._seriesIds.tvdbId ||
+            this._statusFetchInFlight
+        ) {
+            return;
+        }
+
+        this._statusFetchInFlight = true;
+        try {
+            const data = await this._seerrCall(
+                `/api/cinema/tv-status?tvdbId=${this._seriesIds.tvdbId}`
+            );
+            if (!this._open) return;
+            const next = new Map<string, any>();
+            for (const episode of data?.episodes || []) {
+                next.set(
+                    `${episode.seasonNumber}:${episode.episodeNumber}`,
+                    episode
+                );
+            }
+            this._sonarrStatus = next;
+            this.requestUpdate();
+        } catch (err) {
+            console.warn('Failed to fetch Sonarr download status:', err);
+        } finally {
+            this._statusFetchInFlight = false;
+            if (this._open) {
+                this._sonarrStatusLoaded = true;
+                this.requestUpdate();
+            }
+        }
+    }
+
+    private _statusFor(
+        seasonNumber: number,
+        episodeNumber: number
+    ): any | null {
+        return (
+            this._sonarrStatus.get(`${seasonNumber}:${episodeNumber}`) || null
+        );
     }
 
     private _toggleEpisodesView = (e?: Event) => {
@@ -1008,6 +1080,54 @@ export class JellyHAItemDetailsModal extends LitElement {
             .download-episode-btn:disabled {
                 opacity: 0.5;
                 cursor: default;
+            }
+            .episode-status {
+                color: #7dd3fc;
+                font-size: 0.7rem;
+                font-weight: 700;
+            }
+            .episode-status.failed {
+                color: #f87171;
+            }
+            .episode-row.downloading {
+                opacity: 0.82;
+                cursor: default;
+                background: rgba(3, 169, 244, 0.06);
+                border-color: rgba(3, 169, 244, 0.18);
+            }
+            .episode-row.downloading:hover {
+                transform: none;
+                background: rgba(3, 169, 244, 0.08);
+            }
+            .episode-progress {
+                height: 4px;
+                border-radius: 999px;
+                overflow: hidden;
+                background: rgba(255, 255, 255, 0.12);
+                margin-top: 3px;
+            }
+            .episode-progress-bar {
+                height: 100%;
+                border-radius: 999px;
+                background: #38bdf8;
+                transition: width 0.3s ease;
+            }
+            .episode-state-icon {
+                color: #7dd3fc;
+                --mdc-icon-size: 20px;
+            }
+            .season-progress {
+                height: 4px;
+                border-radius: 999px;
+                overflow: hidden;
+                background: rgba(255, 255, 255, 0.09);
+                margin: 6px 2px 0;
+            }
+            .season-progress-bar {
+                height: 100%;
+                border-radius: 999px;
+                background: linear-gradient(90deg, #0284c7, #38bdf8);
+                transition: width 0.3s ease;
             }
             .season-group-list {
                 display: flex;
@@ -2091,6 +2211,12 @@ export class JellyHAItemDetailsModal extends LitElement {
         const busy = new Set(this._downloadBusy);
         keys.forEach((key) => busy.add(key));
         this._downloadBusy = busy;
+        this._downloadMessage = seasonWide
+            ? `Starting download for Season ${seasonNumber}...`
+            : `Starting download for S${String(seasonNumber).padStart(
+                  2,
+                  '0'
+              )} ${this._formatEpisodeRange(episodeNumbers)}...`;
         this.requestUpdate();
 
         try {
@@ -2118,6 +2244,7 @@ export class JellyHAItemDetailsModal extends LitElement {
                       2,
                       '0'
                   )} ${range}.`;
+            void this._fetchSonarrStatus();
         } catch (err: any) {
             this._downloadMessage = err?.message || 'Download failed.';
         } finally {
@@ -2133,11 +2260,109 @@ export class JellyHAItemDetailsModal extends LitElement {
         episodes: Array<{ episode: number; item?: MediaItem }>
     ): void {
         const missing = episodes
-            .filter((episode) => !episode.item)
+            .filter((episode) => {
+                if (episode.item) return false;
+                const status = this._statusFor(
+                    seasonNumber,
+                    episode.episode
+                );
+                return (
+                    !status?.hasFile &&
+                    !status?.monitored &&
+                    !status?.queue
+                );
+            })
             .map((episode) => episode.episode);
         if (missing.length) {
             void this._downloadEpisodes(seasonNumber, missing, true);
         }
+    }
+
+    private _downloadStatusLabel(status: any): string {
+        if (status?.queue) {
+            const queue = status.queue;
+            const state = String(queue.trackedDownloadState || '').toLowerCase();
+            const raw = String(queue.status || '').toLowerCase();
+            if (
+                queue.trackedDownloadStatus === 'error' ||
+                raw === 'failed'
+            ) {
+                return 'Download failed';
+            }
+            if (state === 'importing' || raw === 'completed') {
+                return 'Importing into Jellyfin';
+            }
+            if (raw === 'paused') return 'Paused';
+            const percent = Math.max(
+                0,
+                Math.min(100, Number(queue.percent) || 0)
+            );
+            let label = percent > 0 ? `Downloading ${percent.toFixed(0)}%` : 'Queued';
+            if (queue.timeLeft) label += ` \u00b7 ${queue.timeLeft} left`;
+            return label;
+        }
+        if (status?.hasFile) return 'Downloaded \u00b7 waiting for Jellyfin';
+        if (status?.monitored) return 'Queued \u00b7 waiting for release';
+        return 'Not downloaded';
+    }
+
+    private _renderDownloadingEpisodeRow(
+        entry: {
+            season: number;
+            episode: number;
+            name?: string;
+            overview?: string;
+        },
+        status: any
+    ): TemplateResult {
+        const percent = Math.max(
+            0,
+            Math.min(100, Number(status?.queue?.percent) || 0)
+        );
+        const failed =
+            status?.queue &&
+            (status.queue.trackedDownloadStatus === 'error' ||
+                String(status.queue.status).toLowerCase() === 'failed');
+        return html`
+            <div class="episode-row downloading">
+                <div class="episode-thumb-wrap missing-thumb">
+                    <ha-icon icon=${failed ? 'mdi:alert-circle-outline' : 'mdi:progress-download'}></ha-icon>
+                </div>
+                <div class="episode-content">
+                    <div class="episode-header-line">
+                        <span class="episode-number">S${entry.season}:E${entry.episode}</span>
+                        <span class="episode-status ${failed ? 'failed' : ''}">${this._downloadStatusLabel(status)}</span>
+                    </div>
+                    <h4 class="episode-title" title="${entry.name || 'Episode'}">
+                        ${entry.name || `Episode ${entry.episode}`}
+                    </h4>
+                    ${status?.queue ? html`
+                        <div class="episode-progress">
+                            <div class="episode-progress-bar" style="width:${percent}%"></div>
+                        </div>
+                    ` : nothing}
+                </div>
+                <div class="episode-actions">
+                    ${failed ? html`
+                        <button
+                            class="play-episode-btn download-episode-btn"
+                            @click=${(e: Event) => {
+                                e.stopPropagation();
+                                void this._downloadEpisodes(entry.season, [
+                                    entry.episode,
+                                ]);
+                            }}
+                            type="button"
+                            title="Retry download"
+                        >
+                            <ha-icon icon="mdi:refresh"></ha-icon>
+                        </button>
+                    ` : html`
+                        <ha-icon class="episode-state-icon" icon=${status?.hasFile ? 'mdi:check' : 'mdi:download'}></ha-icon>
+                    `}
+                </div>
+            </div>
+        `;
     }
 
     private _renderMissingEpisodeRow(entry: {
@@ -2152,12 +2377,12 @@ export class JellyHAItemDetailsModal extends LitElement {
         return html`
             <div class="episode-row missing">
                 <div class="episode-thumb-wrap missing-thumb">
-                    <ha-icon icon="mdi:download-off-outline"></ha-icon>
+                    <ha-icon icon=${busy ? 'mdi:progress-download' : 'mdi:download-off-outline'}></ha-icon>
                 </div>
                 <div class="episode-content">
                     <div class="episode-header-line">
                         <span class="episode-number">S${entry.season}:E${entry.episode}</span>
-                        <span class="missing-badge">NOT DOWNLOADED</span>
+                        <span class="missing-badge">${busy ? 'STARTING...' : requested ? 'STARTED' : 'NOT DOWNLOADED'}</span>
                     </div>
                     <h4 class="episode-title" title="${entry.name || 'Episode'}">
                         ${entry.name || `Episode ${entry.episode}`}
@@ -2197,7 +2422,11 @@ export class JellyHAItemDetailsModal extends LitElement {
                 count + season.episodes.filter((episode) => episode.item).length,
             0
         );
-        const canDownload = !!(this._seerrUrl && this._seriesIds.tmdbId);
+        const canDownload = !!(
+            this._seerrUrl &&
+            this._seriesIds.tmdbId &&
+            this._sonarrStatusLoaded
+        );
 
         return html`
             <div class="series-episodes-section">
@@ -2213,6 +2442,9 @@ export class JellyHAItemDetailsModal extends LitElement {
                 </div>
                 ${this._seriesCatalogLoading ? html`
                     <div class="episodes-placeholder">Loading full season list.</div>
+                ` : nothing}
+                ${this._seriesCatalog && !this._sonarrStatusLoaded ? html`
+                    <div class="episodes-placeholder">Checking download status...</div>
                 ` : nothing}
                 ${this._episodesLoading ? html`
                     <div class="episodes-placeholder">Loading episodesâ€¦</div>
@@ -2231,13 +2463,64 @@ export class JellyHAItemDetailsModal extends LitElement {
                             this._downloadBusy.has(seasonKey) ||
                             this._downloadRequested.has(seasonKey);
                         const expanded = this._expandedCatalogSeasons.has(season);
+                        const statuses = new Map(
+                            missing.map((episode) => [
+                                episode.episode,
+                                this._statusFor(season, episode.episode),
+                            ])
+                        );
+                        const downloadedCount = episodes.filter(
+                            (episode) =>
+                                episode.item ||
+                                statuses.get(episode.episode)?.hasFile
+                        ).length;
+                        const active = missing.filter((episode) => {
+                            const status = statuses.get(episode.episode);
+                            return (
+                                !status?.hasFile &&
+                                !!(status?.queue || status?.monitored)
+                            );
+                        });
+                        const remaining = missing.filter((episode) => {
+                            const status = statuses.get(episode.episode);
+                            return (
+                                !status?.hasFile &&
+                                !status?.queue &&
+                                !status?.monitored
+                            );
+                        });
+                        const progress = episodes.reduce((sum, episode) => {
+                            if (episode.item) return sum + 1;
+                            const status = statuses.get(episode.episode);
+                            if (status?.hasFile) return sum + 1;
+                            if (status?.queue) {
+                                return (
+                                    sum +
+                                    (Math.max(
+                                        0,
+                                        Math.min(
+                                            100,
+                                            Number(status.queue.percent) || 0
+                                        )
+                                    ) /
+                                        100)
+                                );
+                            }
+                            return sum;
+                        }, 0);
+                        const seasonPercent = episodes.length
+                            ? (progress / episodes.length) * 100
+                            : 0;
                         return html`
                             <section class="season-group">
                                 <div class="season-group-header">
                                     <h3>${season === 0 ? 'Specials' : `Season ${season}`}</h3>
                                     <div class="season-group-actions">
-                                        <span>${episodes.length - missing.length}/${episodes.length} downloaded</span>
-                                        ${missing.length && canDownload ? html`
+                                        <span>
+                                            ${downloadedCount}/${episodes.length} downloaded
+                                            ${active.length ? ` \u00b7 ${active.length} downloading` : ''}
+                                        </span>
+                                        ${remaining.length && canDownload ? html`
                                             <button
                                                 class="download-season-btn"
                                                 ?disabled=${seasonBusy}
@@ -2247,8 +2530,8 @@ export class JellyHAItemDetailsModal extends LitElement {
                                                 }}
                                                 type="button"
                                             >
-                                                <ha-icon icon=${seasonBusy ? 'mdi:check' : 'mdi:download'}></ha-icon>
-                                                ${seasonBusy ? 'Downloading' : 'Download season'}
+                                                <ha-icon icon=${seasonBusy ? 'mdi:progress-download' : 'mdi:download'}></ha-icon>
+                                                ${seasonBusy ? 'Starting...' : active.length ? 'Download remaining' : 'Download season'}
                                             </button>
                                         ` : nothing}
                                         <button
@@ -2268,13 +2551,30 @@ export class JellyHAItemDetailsModal extends LitElement {
                                         </button>
                                     </div>
                                 </div>
+                                ${seasonPercent > 0 || active.length ? html`
+                                    <div class="season-progress">
+                                        <div class="season-progress-bar" style="width:${seasonPercent}%"></div>
+                                    </div>
+                                ` : nothing}
                                 ${expanded ? html`
                                     <div class="season-group-list">
-                                        ${episodes.map((episode) =>
-                                            episode.item
-                                                ? this._renderInlineEpisodeRow(episode.item)
-                                                : this._renderMissingEpisodeRow(episode)
-                                        )}
+                                        ${episodes.map((episode) => {
+                                            if (episode.item) {
+                                                return this._renderInlineEpisodeRow(episode.item);
+                                            }
+                                            const status = statuses.get(episode.episode);
+                                            if (
+                                                status?.queue ||
+                                                status?.monitored ||
+                                                status?.hasFile
+                                            ) {
+                                                return this._renderDownloadingEpisodeRow(
+                                                    episode,
+                                                    status
+                                                );
+                                            }
+                                            return this._renderMissingEpisodeRow(episode);
+                                        })}
                                     </div>
                                 ` : nothing}
                             </section>
@@ -2360,6 +2660,11 @@ export class JellyHAItemDetailsModal extends LitElement {
             this._selectedSeason && this._selectedSeason !== 'all'
                 ? catalog.filter((season) => season.season === this._selectedSeason)
                 : catalog;
+        const canDownload = !!(
+            this._seerrUrl &&
+            this._seriesIds.tmdbId &&
+            this._sonarrStatusLoaded
+        );
 
         return html`
             <div class="episodes-container">
@@ -2380,35 +2685,102 @@ export class JellyHAItemDetailsModal extends LitElement {
                 ` : nothing}
 
                 <div class="episodes-list">
+                    ${this._downloadMessage ? html`
+                        <div class="episodes-placeholder download-note">${this._downloadMessage}</div>
+                    ` : nothing}
                     ${this._episodesLoading ? html`
-                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">Loading episodesï¿½</div>
+                        <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">Loading episodes…</div>
                     ` : this._episodesError ? html`
                         <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">${this._episodesError}</div>
                     ` : displayed.length === 0 ? html`
                         <div style="text-align: center; color: rgba(255,255,255,0.6); padding: 40px 20px;">No episodes found.</div>
                     ` : displayed.map(({ season, episodes }) => {
                         const missing = episodes.filter((episode) => !episode.item);
+                        const statuses = new Map(
+                            missing.map((episode) => [
+                                episode.episode,
+                                this._statusFor(season, episode.episode),
+                            ])
+                        );
+                        const downloadedCount = episodes.filter(
+                            (episode) =>
+                                episode.item ||
+                                statuses.get(episode.episode)?.hasFile
+                        ).length;
+                        const active = missing.filter((episode) => {
+                            const status = statuses.get(episode.episode);
+                            return (
+                                !status?.hasFile &&
+                                !!(status?.queue || status?.monitored)
+                            );
+                        });
+                        const remaining = missing.filter((episode) => {
+                            const status = statuses.get(episode.episode);
+                            return (
+                                !status?.hasFile &&
+                                !status?.queue &&
+                                !status?.monitored
+                            );
+                        });
+                        const progress = episodes.reduce((sum, episode) => {
+                            if (episode.item) return sum + 1;
+                            const status = statuses.get(episode.episode);
+                            if (status?.hasFile) return sum + 1;
+                            if (status?.queue) {
+                                return (
+                                    sum +
+                                    (Math.max(
+                                        0,
+                                        Math.min(
+                                            100,
+                                            Number(status.queue.percent) || 0
+                                        )
+                                    ) /
+                                        100)
+                                );
+                            }
+                            return sum;
+                        }, 0);
+                        const seasonPercent = episodes.length
+                            ? (progress / episodes.length) * 100
+                            : 0;
                         const seasonKey = `season:${season}`;
                         const seasonBusy =
                             this._downloadBusy.has(seasonKey) ||
                             this._downloadRequested.has(seasonKey);
-                        const canDownload = !!(this._seerrUrl && this._seriesIds.tmdbId);
                         return html`
                             <section class="season-group">
                                 <div class="season-group-header">
                                     <h3>${season === 0 ? 'Specials' : `Season ${season}`}</h3>
                                     <div class="season-group-actions">
-                                        <span>${episodes.length - missing.length}/${episodes.length} downloaded</span>
-                                        ${missing.length && canDownload ? html`
+                                        <span>
+                                            ${downloadedCount}/${episodes.length} downloaded
+                                            ${active.length ? ` \u00b7 ${active.length} downloading` : ''}
+                                        </span>
+                                        ${remaining.length && canDownload ? html`
                                             <button class="download-season-btn" ?disabled=${seasonBusy} @click=${(e: Event) => { e.stopPropagation(); this._downloadSeason(season, episodes); }} type="button">
-                                                <ha-icon icon=${seasonBusy ? 'mdi:check' : 'mdi:download'}></ha-icon>
-                                                ${seasonBusy ? 'Downloading' : 'Download season'}
+                                                <ha-icon icon=${seasonBusy ? 'mdi:progress-download' : 'mdi:download'}></ha-icon>
+                                                ${seasonBusy ? 'Starting...' : active.length ? 'Download remaining' : 'Download season'}
                                             </button>
                                         ` : nothing}
                                     </div>
                                 </div>
+                                ${seasonPercent > 0 || active.length ? html`
+                                    <div class="season-progress">
+                                        <div class="season-progress-bar" style="width:${seasonPercent}%"></div>
+                                    </div>
+                                ` : nothing}
                                 <div class="season-group-list">
-                                    ${episodes.map((episode) => episode.item ? this._renderInlineEpisodeRow(episode.item) : this._renderMissingEpisodeRow(episode))}
+                                    ${episodes.map((episode) => {
+                                        if (episode.item) {
+                                            return this._renderInlineEpisodeRow(episode.item);
+                                        }
+                                        const status = statuses.get(episode.episode);
+                                        if (status?.queue || status?.monitored || status?.hasFile) {
+                                            return this._renderDownloadingEpisodeRow(episode, status);
+                                        }
+                                        return this._renderMissingEpisodeRow(episode);
+                                    })}
                                 </div>
                             </section>
                         `;

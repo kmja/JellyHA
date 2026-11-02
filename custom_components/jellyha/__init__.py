@@ -33,7 +33,7 @@ _LOGGER = logging.getLogger(__name__)
 
 # Local card build version. Bump whenever the bundled jellyha-cards.js is
 # rebuilt so browsers fetch the new module instead of a cached copy.
-CARD_BUILD_VERSION = "1.7.5.6"
+CARD_BUILD_VERSION = "1.7.5.7"
 
 from dataclasses import dataclass
 
