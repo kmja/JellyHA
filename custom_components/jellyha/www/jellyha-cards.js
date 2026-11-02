@@ -10155,7 +10155,7 @@ var Hi = Object.defineProperty, Wi = Object.getOwnPropertyDescriptor, z = (e, t,
     (r = e[a]) && (s = (o ? r(t, i, s) : r(s)) || s);
   return o && s && Hi(t, i, s), s;
 };
-const Vi = "1.7.5.7";
+const Vi = "1.7.5.8";
 console.info(
   `%c JELLYHA-LIBRARY-CARD %c v${Vi} `,
   "color: white; background: #00a4dc; font-weight: bold;",
@@ -13505,6 +13505,10 @@ let A = class extends ee {
     const e = this.getBoundingClientRect(), t = this.shadowRoot?.querySelector("ha-card");
     if (!t || e.height === 0) return;
     if (t.classList.contains("empty-state") || t.classList.contains("error-state")) {
+      t.classList.remove("compact-height", "micro-height", "tall-narrow", "very-tall-narrow", "compact-width");
+      return;
+    }
+    if (t.classList.contains("full-art-playing-card")) {
       t.classList.remove("compact-height", "micro-height", "tall-narrow", "very-tall-narrow", "compact-width");
       return;
     }

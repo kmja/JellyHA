@@ -2364,6 +2364,14 @@ export class JellyHANowPlayingCard extends LitElement {
             return;
         }
 
+        // Full-art playback uses its own fixed-height layout and container queries.
+        // Adaptive height classes can hide/show the header, which changes the card
+        // height and retriggers this observer, causing visible flicker on phones.
+        if (haCard.classList.contains('full-art-playing-card')) {
+            haCard.classList.remove('compact-height', 'micro-height', 'tall-narrow', 'very-tall-narrow', 'compact-width');
+            return;
+        }
+
         const h = cardRect.height;
         const w = cardRect.width;
 
